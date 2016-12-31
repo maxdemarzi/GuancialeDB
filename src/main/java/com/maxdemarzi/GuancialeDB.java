@@ -81,18 +81,13 @@ public class GuancialeDB {
     }
 
     public boolean addRelationship (String type, String from, String to) {
-        if(!related.containsKey(type)) {
-            related.put(type, new ReversibleMultiMap<>());
-        }
+        related.putIfAbsent(type, new ReversibleMultiMap<>());
         related.get(type).put(from, to);
         return true;
     }
 
     public boolean addRelationship (String type, String from, String to, Object properties) {
-        if(!related.containsKey(type)) {
-            related.put(type, new ReversibleMultiMap<>());
-        }
-        related.get(type).put(from, to);
+        related.putIfAbsent(type, new ReversibleMultiMap<>());        related.get(type).put(from, to);
         relationships.put(from + "-" + to + type, properties);
         return true;
     }
