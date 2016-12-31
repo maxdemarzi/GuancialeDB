@@ -18,13 +18,13 @@ public class GuancialeDBRecommendationBenchmark {
     @Param({"10000000"})
     private int maxRels;
 
-    @Param({"1000"})
+    @Param({"1000", "10000"})
     private int personCount;
 
-    @Param({"200"})
+    @Param({"200", "2000"})
     private int itemCount;
 
-    @Param({"10"})
+    @Param({"10", "100"})
     private int likesCount;
 
     @Setup

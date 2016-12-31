@@ -11,7 +11,7 @@ import java.util.Set;
 
 // Adapted from http://stackoverflow.com/questions/23646186/a-java-multimap-which-allows-fast-lookup-of-key-by-value
 
-public class ReverseableMultiMap<K extends String, V extends String> implements Multimap<K, V> {
+public class ReversibleMultiMap<K extends String, V extends String> implements Multimap<K, V> {
 
         private Multimap<K, V> key2Value = ArrayListMultimap.create();
         private Multimap<V, K> value2key = ArrayListMultimap.create();

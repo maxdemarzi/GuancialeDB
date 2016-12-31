@@ -10,7 +10,7 @@ public class GuancialeDB {
 
     private static ChronicleMap<String, Object> nodes;
     private static ChronicleMap<String, Object> relationships;
-    private static HashMap<String, ReverseableMultiMap<String, String>> related;
+    private static HashMap<String, ReversibleMultiMap<String, String>> related;
 
     public GuancialeDB(Integer maxNodes, Integer maxRelationships) {
         HashMap<String, Object> relProperties = new HashMap<>();
@@ -67,7 +67,7 @@ public class GuancialeDB {
     public boolean removeNode(String id) {
         nodes.remove(id);
         for (String type : related.keySet()) {
-            ReverseableMultiMap<String, String> rels = related.get(type);
+            ReversibleMultiMap<String, String> rels = related.get(type);
             for (String value : rels.get(id) ){
                 relationships.remove(id + "-" + value + type);
             }
@@ -82,7 +82,7 @@ public class GuancialeDB {
 
     public boolean addRelationship (String type, String from, String to) {
         if(!related.containsKey(type)) {
-            related.put(type, new ReverseableMultiMap<>());
+            related.put(type, new ReversibleMultiMap<>());
         }
         related.get(type).put(from, to);
         return true;
@@ -90,7 +90,7 @@ public class GuancialeDB {
 
     public boolean addRelationship (String type, String from, String to, Object properties) {
         if(!related.containsKey(type)) {
-            related.put(type, new ReverseableMultiMap<>());
+            related.put(type, new ReversibleMultiMap<>());
         }
         related.get(type).put(from, to);
         relationships.put(from + "-" + to + type, properties);
