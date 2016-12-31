@@ -74,6 +74,13 @@
             <scope>test</scope>
             <version>${jersey.version}</version>
         </dependency>
+        <dependency>
+            <groupId>org.glassfish.jersey.media</groupId>
+            <artifactId>jersey-media-json-jackson</artifactId>
+            <scope>test</scope>
+            <version>${jersey.version}</version>
+        </dependency>
+
     </dependencies>
 
     <build>

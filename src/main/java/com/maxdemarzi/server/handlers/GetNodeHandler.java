@@ -28,4 +28,5 @@ public class GetNodeHandler implements HttpHandler {
 
 
         exchange.getResponseSender().send(ByteBuffer.wrap(objectMapper.writeValueAsBytes(db.getNode(id))));
-    }}
+    }
+}

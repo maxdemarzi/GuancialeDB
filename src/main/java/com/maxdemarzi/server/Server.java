@@ -3,6 +3,7 @@ package com.maxdemarzi.server;
 import com.google.common.net.MediaType;
 import com.maxdemarzi.GuancialeDB;
 import com.maxdemarzi.server.handlers.GetNodeHandler;
+import com.maxdemarzi.server.handlers.PostNodeHandler;
 import com.maxdemarzi.server.handlers.RootHandler;
 import io.undertow.Undertow;
 import io.undertow.server.RoutingHandler;
@@ -32,6 +33,7 @@ public class Server {
                 .setHandler(new RoutingHandler()
                         .add("GET", "/db/root", new RootHandler())
                         .add("GET", "/db/root/node/{id}", new GetNodeHandler(db))
+                        .add("POST", "/db/root/node/{id}", new PostNodeHandler(db))
                 )
                 .setWorkerThreads(200).build();
     }
