@@ -12,7 +12,23 @@ public class GuancialeDB {
     private static ChronicleMap<String, Object> relationships;
     private static HashMap<String, ReversibleMultiMap<String, String>> related;
 
-    public GuancialeDB(Integer maxNodes, Integer maxRelationships) {
+    private static GuancialeDB instance;
+    public static GuancialeDB init(Integer maxNodes, Integer maxRelationships) {
+        if (instance == null) {
+            synchronized (GuancialeDB.class) {
+                if (instance == null){
+                    instance = new GuancialeDB(maxNodes, maxRelationships);
+                }
+            }
+        }
+        return instance;
+    }
+
+    public static GuancialeDB getInstance() {
+        return instance;
+    }
+
+    private GuancialeDB(Integer maxNodes, Integer maxRelationships) {
         HashMap<String, Object> relProperties = new HashMap<>();
         relProperties.put("one", 10000);
 

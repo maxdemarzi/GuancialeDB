@@ -4,6 +4,12 @@
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
 
+    <parent>
+        <groupId>org.jooby</groupId>
+        <artifactId>jooby-project</artifactId>
+        <version>1.0.1</version>
+    </parent>
+
     <groupId>com.maxdemarzi</groupId>
     <artifactId>GuancialeDB</artifactId>
     <version>1.0-SNAPSHOT</version>
@@ -12,11 +18,16 @@
         <junit.version>4.12</junit.version>
         <guava.version>20.0</guava.version>
         <chronicle.version>3.11.0</chronicle.version>
+        <jooby.version>1.0.1</jooby.version>
         <jmh.version>1.17.3</jmh.version>
+        <restassured.version>3.0.1</restassured.version>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+        <!-- Startup class -->
+        <application.class>com.maxdemarzi.Server</application.class>
     </properties>
 
     <dependencies>
+        <!-- Data Structures -->
         <dependency>
             <groupId>net.openhft</groupId>
             <artifactId>chronicle-map</artifactId>
@@ -27,6 +38,35 @@
             <artifactId>guava</artifactId>
             <version>${guava.version}</version>
         </dependency>
+
+        <!-- Server -->
+        <dependency>
+            <groupId>org.jooby</groupId>
+            <artifactId>jooby-netty</artifactId>
+            <version>${jooby.version}</version>
+        </dependency>
+
+        <!-- Render -->
+        <dependency>
+            <groupId>org.jooby</groupId>
+            <artifactId>jooby-jackson</artifactId>
+            <version>${jooby.version}</version>
+        </dependency>
+
+        <!-- Errors -->
+        <dependency>
+            <groupId>org.jooby</groupId>
+            <artifactId>jooby-whoops</artifactId>
+            <version>${jooby.version}</version>
+        </dependency>
+
+        <!-- Logging -->
+        <dependency>
+            <groupId>ch.qos.logback</groupId>
+            <artifactId>logback-classic</artifactId>
+        </dependency>
+
+        <!-- Tests -->
         <dependency>
             <groupId>junit</groupId>
             <artifactId>junit</artifactId>
@@ -44,10 +84,21 @@
             <scope>test</scope>
             <version>1.6.1</version>
         </dependency>
+        <dependency>
+            <groupId>io.rest-assured</groupId>
+            <artifactId>rest-assured</artifactId>
+            <version>${restassured.version}</version>
+            <scope>test</scope>
+        </dependency>
     </dependencies>
 
     <build>
         <plugins>
+            <!-- Build fat jar -->
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-shade-plugin</artifactId>
+            </plugin>
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-compiler-plugin</artifactId>

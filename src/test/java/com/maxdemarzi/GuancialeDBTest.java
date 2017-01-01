@@ -12,7 +12,8 @@ public class GuancialeDBTest {
 
     @Before
     public void setup() throws IOException {
-        db = new GuancialeDB(10000, 100000);
+        GuancialeDB.init(10000, 100000);
+        db = GuancialeDB.getInstance();
     }
 
     @Test

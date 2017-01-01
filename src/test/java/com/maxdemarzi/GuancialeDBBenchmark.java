@@ -36,7 +36,8 @@ public class GuancialeDBBenchmark {
 
     @Setup(Level.Invocation )
     public void prepare() throws IOException {
-        db = new GuancialeDB(maxNodes, maxRels);
+        GuancialeDB.init(maxNodes, maxRels);
+        db = GuancialeDB.getInstance();
 
         for (int item = 0; item < itemCount; item++) {
             HashMap<String, Object> properties = new HashMap<>();
