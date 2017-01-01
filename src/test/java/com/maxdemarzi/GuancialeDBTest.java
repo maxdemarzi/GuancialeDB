@@ -40,10 +40,10 @@ public class GuancialeDBTest {
 
     @Test
     public void shouldRemoveRelationship() {
-        db.addRelationship("FRIENDS", "one", "two");
-        Assert.assertEquals(1, db.getRelationshipTypeAttributes("FRIENDS").get("FRIENDS"));
-        db.removeRelationship("FRIENDS", "one", "two");
-        Assert.assertEquals(0, db.getRelationshipTypeAttributes("FRIENDS").get("FRIENDS"));
+        db.addRelationship("HATES", "one", "two");
+        Assert.assertEquals(1, db.getRelationshipTypeAttributes("HATES").get("HATES"));
+        db.removeRelationship("HATES", "one", "two");
+        Assert.assertEquals(0, db.getRelationshipTypeAttributes("HATES").get("HATES"));
     }
 
     @Test

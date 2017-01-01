@@ -1,27 +1,16 @@
 package com.maxdemarzi;
 
-import org.jooby.mvc.Consumes;
-import org.jooby.mvc.GET;
-import org.jooby.mvc.Path;
-import org.jooby.mvc.Produces;
+import org.jooby.Result;
+import org.jooby.Results;
+import org.jooby.mvc.*;
 
-import javax.inject.Inject;
-import java.util.HashMap;
+import java.util.Optional;
 
-@Path("/db/node")
+@Path("/db/node/")
 @Consumes("json")
 @Produces("json")
 public class Node {
     private GuancialeDB db = GuancialeDB.getInstance();
-
-    @Inject
-    public Node() {
-        db.addNode("max", "props");
-        db.addNode("max2");
-        HashMap<String, Object> props =  new HashMap<>();
-        props.put("city", "Chicago");
-        db.addNode("max3", props);
-    }
 
     /**
      *
@@ -30,10 +19,25 @@ public class Node {
      * @param id Node ID.
      * @return Returns a single Node
      */
-    @Path("/:id")
+    @Path(":id")
     @GET
     public Object get(final String id) {
         return db.getNode(id);
+    }
+
+    /**
+     *
+     * Create node with Properties
+     *
+     * @param id Node ID.
+     * @param body Node Properties. Default is "".
+     * @return Returns <code>201</code>
+     */
+    @Path(":id")
+    @POST
+    public Result create(final String id, @Body final Optional<Object> body) {
+        db.addNode(id, body.orElse(""));
+        return Results.with(201);
     }
 
 }

@@ -66,6 +66,13 @@
             <artifactId>logback-classic</artifactId>
         </dependency>
 
+        <!-- Swagger Documentation -->
+        <dependency>
+            <groupId>org.jooby</groupId>
+            <artifactId>jooby-swagger</artifactId>
+            <version>${jooby.version}</version>
+        </dependency>
+
         <!-- Tests -->
         <dependency>
             <groupId>junit</groupId>
@@ -98,6 +105,17 @@
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-shade-plugin</artifactId>
+            </plugin>
+            <plugin>
+                <groupId>org.jooby</groupId>
+                <artifactId>jooby-maven-plugin</artifactId>
+                <executions>
+                    <execution>
+                        <goals>
+                            <goal>spec</goal>
+                        </goals>
+                    </execution>
+                </executions>
             </plugin>
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
