@@ -73,6 +73,13 @@
             <version>${jooby.version}</version>
         </dependency>
 
+        <!-- Metrics -->
+        <dependency>
+            <groupId>org.jooby</groupId>
+            <artifactId>jooby-metrics</artifactId>
+            <version>${jooby.version}</version>
+        </dependency>
+
         <!-- Tests -->
         <dependency>
             <groupId>junit</groupId>

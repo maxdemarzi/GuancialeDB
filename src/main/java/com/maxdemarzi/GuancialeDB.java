@@ -28,6 +28,10 @@ public class GuancialeDB {
         return instance;
     }
 
+    public boolean isAvailable() {
+        return true;
+    }
+
     private GuancialeDB(Integer maxNodes, Integer maxRelationships) {
         HashMap<String, Object> relProperties = new HashMap<>();
         relProperties.put("one", 10000);
