@@ -50,7 +50,7 @@ public class GuancialeDBTest {
     public void shouldAddNode() {
         boolean created = db.addNode("key");
         Assert.assertTrue(created);
-        Assert.assertEquals("", db.getNode("key"));
+        Assert.assertEquals(new HashMap<>(), db.getNode("key"));
     }
 
     @Test
@@ -67,7 +67,7 @@ public class GuancialeDBTest {
     public void shouldAddNodeWithSimpleProperty() {
         boolean created = db.addNode("simple", 5);
         Assert.assertTrue(created);
-        Assert.assertEquals(5, db.getNode("simple"));
+        Assert.assertEquals(new HashMap<String, Object>(){{put("value", 5);}}, db.getNode("simple"));
     }
 
     @Test
@@ -149,7 +149,7 @@ public class GuancialeDBTest {
         Set<Object> expected = new HashSet<Object>() {{
             add( new HashMap<String, Object>() {{
                 put("_id", "two");
-                put("properties", "node two");
+                put("properties", new HashMap<String, Object>(){{put("value", "node two");}});
             }});
             add( new HashMap<String, Object>() {{
                 put("_id", "three");
@@ -175,7 +175,7 @@ public class GuancialeDBTest {
         Set<Object> expected = new HashSet<Object>() {{
             add( new HashMap<String, Object>() {{
                 put("_id", "two");
-                put("properties", "node two");
+                put("properties", new HashMap<String, Object>(){{put("value", "node two");}});
             }});
             add( new HashMap<String, Object>() {{
                 put("_id", "three");

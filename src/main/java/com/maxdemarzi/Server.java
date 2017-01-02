@@ -5,6 +5,7 @@ import com.codahale.metrics.jvm.GarbageCollectorMetricSet;
 import com.codahale.metrics.jvm.MemoryUsageGaugeSet;
 import com.codahale.metrics.jvm.ThreadStatesGaugeSet;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.typesafe.config.Config;
 import org.jooby.Jooby;
 import org.jooby.MediaType;
 import org.jooby.json.Jackson;
@@ -19,7 +20,15 @@ public class Server extends Jooby {
         put("version","0.0.1");
     }};
 
+    private static GuancialeDB  db;
+    private static ObjectMapper mapper = new ObjectMapper();
     {
+        onStart(() -> {
+            Config conf = require(Config.class);
+            GuancialeDB.init(conf.getInt("guanciale.max_nodes"),conf.getInt("guanciale.max_rels"));
+            db = GuancialeDB.getInstance();
+        });
+
         // JSON via Jackson
         ObjectMapper mapper = new ObjectMapper();
         use(new Jackson(mapper));
@@ -27,17 +36,33 @@ public class Server extends Jooby {
         // Error messages via Whoops
         use(new Whoops());
 
-        // GuancialeDB
-        GuancialeDB.init(1000000,10000000);
-        lifeCycle(GuancialeDB.class);
-
         get("/", () -> "Hello World!").produces(MediaType.text);
         get("/break", req -> { throw new IllegalStateException("Something broke!"); });
 
         use("/db")
-        .get("/",()-> VERSION);
-
-        use(Node.class);
+                /*
+                 * Server Root
+                 * @return Returns server version
+                 */
+                .get("/", () -> VERSION)
+                /*
+                 * Find node by ID.
+                 * @param id Node ID.
+                 * @return Returns a single Node
+                 */
+                .get ("/node/:id", req -> db.getNode(req.param("id").value()))
+                /*
+                 * Create a node with Properties
+                 * @param id Node ID.
+                 * @param body Node Properties. Default is "{}".
+                 * @return Returns <code>201</code>
+                 */
+                .post("/node/:id", (req, rsp) -> {
+                    String id = req.param("id").value();
+                    db.addNode(id, req.body().to(String.class));
+                    rsp.status(201);
+                    rsp.send(db.getNode(id));
+                }).produces("json");
 
         // API Documentation by Swagger
         new SwaggerUI()

@@ -1,7 +1,9 @@
 package com.maxdemarzi;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import net.openhft.chronicle.map.ChronicleMap;
 
+import java.io.IOException;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Set;
@@ -11,6 +13,7 @@ public class GuancialeDB {
     private static ChronicleMap<String, Object> nodes;
     private static ChronicleMap<String, Object> relationships;
     private static HashMap<String, ReversibleMultiMap<String, String>> related;
+    private static ObjectMapper mapper = new ObjectMapper();
 
     private static GuancialeDB instance;
     public static GuancialeDB init(Integer maxNodes, Integer maxRelationships) {
@@ -68,11 +71,30 @@ public class GuancialeDB {
         return attributes;
     }
     public boolean addNode (String key) {
-        return addNode(key,"");
+        nodes.put(key, new HashMap<>());
+        return true;
     }
 
-    public boolean addNode (String key, Object properties) {
+    public boolean addNode (String key, String properties)  {
+        try {
+            nodes.put(key, mapper.readValue(properties, HashMap.class));
+        } catch (IOException e) {
+            HashMap<String, String> value = new HashMap<>();
+            value.put("value", properties);
+            nodes.put(key, value);
+        }
+        return true;
+    }
+
+    public boolean addNode (String key, HashMap properties)  {
         nodes.put(key, properties);
+        return true;
+    }
+
+    public boolean addNode (String key, Object properties)  {
+            HashMap<String, Object> value = new HashMap<>();
+            value.put("value", properties);
+            nodes.put(key, value);
         return true;
     }
 
