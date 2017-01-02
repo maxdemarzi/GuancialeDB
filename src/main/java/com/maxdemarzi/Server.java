@@ -69,10 +69,10 @@ public class Server extends Jooby {
                     rsp.status(201);
                     rsp.send(db.getNode(id));
                 })
-                                /*
+                /*
                  * Delete node by ID.
                  * @param id Node ID.
-                 * @return <code>204</code>
+                 * @return Returns <code>204</code>
                  */
                 .delete ("/node/:id", req -> {
                     if (db.removeNode(req.param("id").value())) {
@@ -97,9 +97,25 @@ public class Server extends Jooby {
                         throw new Err(Status.NOT_FOUND);
                     }
                     return rel;
-                }
-
-                ).produces("json");
+                })
+                /*
+                 * Delete relationship by Type, From, To.
+                 * @param type Relationship Type.
+                 * @param from Starting Node ID.
+                 * @param to Ending Node ID.
+                 * @return Returns <code>204</code>
+                 */
+                .delete ("/relationship/:type/:from/:to", req -> {
+                    if (db.removeRelationship(
+                            req.param("type").value(),
+                            req.param("from").value(),
+                            req.param("to").value())) {
+                        return Results.noContent();
+                    } else {
+                        throw new Err(Status.NOT_FOUND);
+                    }
+                })
+                .produces("json");
 
         // API Documentation by Swagger
         new SwaggerUI()

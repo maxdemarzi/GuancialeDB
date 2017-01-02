@@ -64,4 +64,22 @@ public class RelationshipTest {
                 statusCode(200).
                 contentType("application/json;charset=UTF-8");
     }
+
+    @Test
+    public void integrationTestDeleteRelationshipNotThere() {
+        when().
+                delete("/db/relationship/NOT_THERE/node0/node1").
+        then().
+                assertThat().
+                statusCode(404);
+    }
+
+    @Test
+    public void integrationTestDeleteRelationship() {
+        when().
+                delete("/db/relationship/FOLLOWS/node1/node2").
+        then().
+                assertThat().
+                statusCode(204);
+    }
 }
