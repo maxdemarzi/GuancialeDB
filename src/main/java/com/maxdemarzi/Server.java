@@ -6,8 +6,10 @@ import com.codahale.metrics.jvm.MemoryUsageGaugeSet;
 import com.codahale.metrics.jvm.ThreadStatesGaugeSet;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.typesafe.config.Config;
+import org.jooby.Err;
 import org.jooby.Jooby;
 import org.jooby.MediaType;
+import org.jooby.Status;
 import org.jooby.json.Jackson;
 import org.jooby.metrics.Metrics;
 import org.jooby.swagger.SwaggerUI;
@@ -21,7 +23,7 @@ public class Server extends Jooby {
     }};
 
     private static GuancialeDB  db;
-    private static ObjectMapper mapper = new ObjectMapper();
+
     {
         onStart(() -> {
             Config conf = require(Config.class);
@@ -62,7 +64,19 @@ public class Server extends Jooby {
                     db.addNode(id, req.body().toOptional().orElse("{}"));
                     rsp.status(201);
                     rsp.send(db.getNode(id));
-                }).produces("json");
+                })
+                .get("/relationship/:type/:from/:to", req -> {
+                    Object rel = db.getRelationship(
+                            req.param("type").value(),
+                            req.param("from").value(),
+                            req.param("to").value());
+                    if (rel == null) {
+                        throw new Err(Status.NOT_FOUND);
+                    }
+                    return rel;
+                }
+
+                ).produces("json");
 
         // API Documentation by Swagger
         new SwaggerUI()

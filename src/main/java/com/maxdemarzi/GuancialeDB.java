@@ -134,7 +134,15 @@ public class GuancialeDB {
     }
 
     public Object getRelationship(String type, String from, String to) {
-        return relationships.get(from + "-" + to + type);
+        Object rel = relationships.get(from + "-" + to + type);
+        if (rel == null) {
+            if (related.get(type).get(from).contains(to)) {
+                return new HashMap<>();
+            } else {
+                return null;
+            }
+        }
+        return rel;
     }
 
     public boolean removeRelationship (String type, String from, String to) {
