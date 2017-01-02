@@ -95,6 +95,7 @@ public class NodeTest {
                 post("/db/node/emptyNode").
         then().
                 assertThat().
+                body("$", equalTo(new HashMap<>())).
                 statusCode(201);
     }
 
@@ -110,6 +111,7 @@ public class NodeTest {
                 post("/db/node/singlePropertyNode").
         then().
                 assertThat().
+                body("$", equalTo(prop)).
                 statusCode(201);
     }
 
@@ -122,13 +124,14 @@ public class NodeTest {
         props.put("city", "Chicago");
         props.put("prop", prop);
 
-        given()
-                .contentType("application/json")
-                .body(props).
-        when()
-                .post("/db/node/complexPropertiesNode").
-        then()
-                .assertThat()
-                .statusCode(201);
+        given().
+                contentType("application/json").
+                body(props).
+        when().
+                post("/db/node/complexPropertiesNode").
+        then().
+                assertThat().
+                body("$", equalTo(props)).
+                statusCode(201);
     }
 }

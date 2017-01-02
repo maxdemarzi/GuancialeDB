@@ -59,7 +59,7 @@ public class Server extends Jooby {
                  */
                 .post("/node/:id", (req, rsp) -> {
                     String id = req.param("id").value();
-                    db.addNode(id, req.body().to(String.class));
+                    db.addNode(id, req.body().toOptional().orElse("{}"));
                     rsp.status(201);
                     rsp.send(db.getNode(id));
                 }).produces("json");
