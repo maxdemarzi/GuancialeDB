@@ -37,10 +37,8 @@ public class NodeTest {
         when().
                 get("/db/node/notThere").
         then().
-                assertThat()
-                .body("$", equalTo(new HashMap<>()))
-                .statusCode(200)
-                .contentType("application/json;charset=UTF-8");
+                assertThat().
+                statusCode(404);
     }
 
     @Test
@@ -133,5 +131,23 @@ public class NodeTest {
                 assertThat().
                 body("$", equalTo(props)).
                 statusCode(201);
+    }
+
+    @Test
+    public void integrationTestDeleteNodeNotThere() {
+        when().
+                delete("/db/node/notThere").
+                then().
+                assertThat().
+                statusCode(404);
+    }
+
+    @Test
+    public void integrationTestDeleteEmptyNode() {
+        when().
+                delete("/db/node/emptyNode").
+        then().
+                assertThat().
+                statusCode(204);
     }
 }

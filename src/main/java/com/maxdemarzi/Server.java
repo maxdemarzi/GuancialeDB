@@ -6,10 +6,7 @@ import com.codahale.metrics.jvm.MemoryUsageGaugeSet;
 import com.codahale.metrics.jvm.ThreadStatesGaugeSet;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.typesafe.config.Config;
-import org.jooby.Err;
-import org.jooby.Jooby;
-import org.jooby.MediaType;
-import org.jooby.Status;
+import org.jooby.*;
 import org.jooby.json.Jackson;
 import org.jooby.metrics.Metrics;
 import org.jooby.swagger.SwaggerUI;
@@ -50,9 +47,16 @@ public class Server extends Jooby {
                 /*
                  * Find node by ID.
                  * @param id Node ID.
-                 * @return Returns a single Node
+                 * @return Returns <code>200</code> with a single Node or <code>404</code>
                  */
-                .get ("/node/:id", req -> db.getNode(req.param("id").value()))
+                .get ("/node/:id", req -> {
+                    Object node = db.getNode(req.param("id").value());
+                    if (node == null) {
+                        throw new Err(Status.NOT_FOUND);
+                    } else {
+                        return node;
+                    }
+                })
                 /*
                  * Create a node with Properties
                  * @param id Node ID.
@@ -65,6 +69,25 @@ public class Server extends Jooby {
                     rsp.status(201);
                     rsp.send(db.getNode(id));
                 })
+                                /*
+                 * Delete node by ID.
+                 * @param id Node ID.
+                 * @return <code>204</code>
+                 */
+                .delete ("/node/:id", req -> {
+                    if (db.removeNode(req.param("id").value())) {
+                        return Results.noContent();
+                    } else {
+                        throw new Err(Status.NOT_FOUND);
+                    }
+                })
+                /*
+                 * Find relationship by Type, From, To.
+                 * @param type Relationship Type.
+                 * @param from Starting Node ID.
+                 * @param to Ending Node ID.
+                 * @return Returns <code>200</code> with a single Relationship or <code>404</code>
+                 */
                 .get("/relationship/:type/:from/:to", req -> {
                     Object rel = db.getRelationship(
                             req.param("type").value(),

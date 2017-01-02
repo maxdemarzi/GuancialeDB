@@ -99,27 +99,26 @@ public class GuancialeDB {
     }
 
     public Object getNode(String id) {
-        if (nodes.containsKey(id)) {
-            return nodes.get(id);
-        } else {
-            return new HashMap<>();
-        }
+        return nodes.get(id);
     }
 
     public boolean removeNode(String id) {
-        nodes.remove(id);
-        for (String type : related.keySet()) {
-            ReversibleMultiMap<String, String> rels = related.get(type);
-            for (String value : rels.get(id) ){
-                relationships.remove(id + "-" + value + type);
+        if(nodes.containsKey(id)) {
+            nodes.remove(id);
+            for (String type : related.keySet()) {
+                ReversibleMultiMap<String, String> rels = related.get(type);
+                for (String value : rels.get(id)) {
+                    relationships.remove(id + "-" + value + type);
+                }
+                for (String key : rels.getKeysByValue(id)) {
+                    relationships.remove(key + "-" + id + type);
+                }
+                rels.removeAll(id);
             }
-            for (String key : rels.getKeysByValue(id) ){
-                relationships.remove(key + "-" + id + type);
-            }
-            rels.removeAll(id);
+            return true;
+        } else {
+            return false;
         }
-
-        return true;
     }
 
     public boolean addRelationship (String type, String from, String to) {

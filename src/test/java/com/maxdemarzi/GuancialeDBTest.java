@@ -47,6 +47,12 @@ public class GuancialeDBTest {
     }
 
     @Test
+    public void shouldGetNodeNotThere() {
+        Assert.assertEquals(null, db.getNode("NotThere"));
+    }
+
+
+    @Test
     public void shouldAddNode() {
         boolean created = db.addNode("key");
         Assert.assertTrue(created);
