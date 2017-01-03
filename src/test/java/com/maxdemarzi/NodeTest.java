@@ -94,7 +94,8 @@ public class NodeTest {
         then().
                 assertThat().
                 body("$", equalTo(new HashMap<>())).
-                statusCode(201);
+                statusCode(201).
+                contentType("application/json;charset=UTF-8");;
     }
 
     @Test
@@ -110,7 +111,8 @@ public class NodeTest {
         then().
                 assertThat().
                 body("$", equalTo(prop)).
-                statusCode(201);
+                statusCode(201).
+                contentType("application/json;charset=UTF-8");;
     }
 
     @Test

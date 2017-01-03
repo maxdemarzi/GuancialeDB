@@ -8,6 +8,7 @@ import org.junit.Test;
 import java.io.IOException;
 import java.util.HashMap;
 
+import static io.restassured.RestAssured.given;
 import static io.restassured.RestAssured.when;
 import static org.hamcrest.Matchers.equalTo;
 
@@ -65,6 +66,35 @@ public class RelationshipTest {
                 contentType("application/json;charset=UTF-8");
     }
 
+    @Test
+    public void integrationTestCreateEmptyRelationship() {
+        given().
+                contentType("application/json").
+        when().
+                post("/db/relationship/FOLLOWS/node2/node1").
+        then().
+                assertThat().
+                body("$", equalTo(new HashMap<>())).
+                statusCode(201).
+                contentType("application/json;charset=UTF-8");
+    }
+
+    @Test
+    public void integrationTestCreateSinglePropertyRelationship() {
+        HashMap<String, Object> prop =  new HashMap<>();
+        prop.put("stars", 5);
+
+        given().
+                contentType("application/json").
+                body(prop).
+        when().
+                post("/db/relationship/FOLLOWS/node1/node3").
+        then().
+                assertThat().
+                body("$", equalTo(prop)).
+                statusCode(201).
+                contentType("application/json;charset=UTF-8");
+    }
     @Test
     public void integrationTestDeleteRelationshipNotThere() {
         when().
