@@ -99,6 +99,22 @@ public class Server extends Jooby {
                     return rel;
                 })
                 /*
+                 * Create a relationship with Properties
+                 * @param type Relationship Type.
+                 * @param from Starting Node ID.
+                 * @param to Ending Node ID.
+                 * @param body Node Properties. Default is "{}".
+                 * @return Returns <code>201</code>
+                 */
+                .post("/relationship/:type/:from/:to", (req, rsp) -> {
+                    String type = req.param("type").value();
+                    String from =req.param("from").value();
+                    String to = req.param("to").value();
+                    db.addRelationship(type, from, to, req.body().toOptional().orElse("{}"));
+                    rsp.status(201);
+                    rsp.send(db.getRelationship(type, from, to));
+                })
+                /*
                  * Delete relationship by Type, From, To.
                  * @param type Relationship Type.
                  * @param from Starting Node ID.

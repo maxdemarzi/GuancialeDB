@@ -126,8 +126,27 @@ public class GuancialeDB {
         return related.get(type).put(from, to);
     }
 
-    public boolean addRelationship (String type, String from, String to, Object properties) {
+    public boolean addRelationship (String type, String from, String to, String properties)  {
+        try {
+            relationships.put(from + "-" + to + type, mapper.readValue(properties, HashMap.class));
+        } catch (IOException e) {
+            HashMap<String, String> value = new HashMap<>();
+            value.put("value", properties);
+            relationships.put(from + "-" + to + type, value);
+        }
+        return true;
+    }
+
+    public boolean addRelationship (String type, String from, String to, HashMap properties) {
         relationships.put(from + "-" + to + type, properties);
+        related.putIfAbsent(type, new ReversibleMultiMap<>());
+        return related.get(type).put(from, to);
+    }
+
+    public boolean addRelationship (String type, String from, String to, Object properties) {
+        HashMap<String, Object> value = new HashMap<>();
+        value.put("value", properties);
+        relationships.put(from + "-" + to + type, value);
         related.putIfAbsent(type, new ReversibleMultiMap<>());
         return related.get(type).put(from, to); 
     }
