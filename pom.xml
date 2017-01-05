@@ -23,7 +23,7 @@
         <restassured.version>3.0.1</restassured.version>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <!-- Startup class -->
-        <application.class>com.maxdemarzi.Server</application.class>
+        <application.class>com.maxdemarzi.server.Server</application.class>
     </properties>
 
     <dependencies>

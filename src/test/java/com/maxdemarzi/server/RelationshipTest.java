@@ -1,5 +1,7 @@
-package com.maxdemarzi;
+package com.maxdemarzi.server;
 
+import com.maxdemarzi.GuancialeDB;
+import com.maxdemarzi.server.Server;
 import org.jooby.test.JoobyRule;
 import org.junit.Before;
 import org.junit.Rule;

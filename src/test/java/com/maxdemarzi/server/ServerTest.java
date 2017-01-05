@@ -1,5 +1,6 @@
-package com.maxdemarzi;
+package com.maxdemarzi.server;
 
+import com.maxdemarzi.server.Server;
 import org.jooby.test.JoobyRule;
 import org.jooby.test.MockRouter;
 import org.junit.ClassRule;
