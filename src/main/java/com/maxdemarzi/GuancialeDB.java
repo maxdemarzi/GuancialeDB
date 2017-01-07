@@ -4,16 +4,14 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import net.openhft.chronicle.map.ChronicleMap;
 
 import java.io.IOException;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Set;
+import java.util.*;
 
 public class GuancialeDB {
 
     private static ChronicleMap<String, Object> nodes;
     private static ChronicleMap<String, Object> relationships;
     private static HashMap<String, ReversibleMultiMap<String, String>> related;
-    private static ObjectMapper mapper = new ObjectMapper();
+    private static final ObjectMapper mapper = new ObjectMapper();
 
     private static GuancialeDB instance;
     public static GuancialeDB init(Integer maxNodes, Integer maxRelationships) {
@@ -33,6 +31,12 @@ public class GuancialeDB {
 
     public boolean isAvailable() {
         return true;
+    }
+
+    public void clear() {
+        nodes.clear();
+        relationships.clear();
+        related = new HashMap<>();
     }
 
     private GuancialeDB(Integer maxNodes, Integer maxRelationships) {
@@ -200,5 +204,39 @@ public class GuancialeDB {
             results.add(properties);
         }
         return results;
+    }
+
+
+    public Integer getNodeDegree(String id) {
+        return getNodeDegree(id, "all", null);
+    }
+
+    public Integer getNodeDegree(String id, String direction) {
+        return getNodeDegree(id, direction, null);
+    }
+
+    public Integer getNodeDegree(String id, String direction, List<String> types) {
+        if (nodes.containsKey(id)) {
+            Integer count = 0;
+            List<String> relTypes;
+            if (types == null) {
+                relTypes = new ArrayList<>(related.keySet());
+            } else {
+                relTypes= types;
+            }
+
+            for (String type : relTypes) {
+                ReversibleMultiMap<String, String> rels = related.get(type);
+                if (direction.equals("all") || direction.equals("out")) {
+                    count += rels.get(id).size();
+                }
+                if (direction.equals("all") || direction.equals("in")) {
+                    count += rels.getKeysByValue(id).size();
+                }
+            }
+            return count;
+        }
+
+        return null;
     }
 }

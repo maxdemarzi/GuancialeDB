@@ -14,6 +14,7 @@ public class GuancialeDBTest {
     public void setup() throws IOException {
         GuancialeDB.init(10000, 100000);
         db = GuancialeDB.getInstance();
+        db.clear();
     }
 
     @Test
@@ -189,5 +190,60 @@ public class GuancialeDBTest {
             }});
         }};
         Assert.assertEquals(expected, actual);
+    }
+
+    @Test
+    public void shouldGetNodeDegree() {
+        db.addNode("four");
+        db.addNode("five");
+        db.addNode("six");
+        db.addRelationship("FRIENDS", "four", "five");
+        db.addRelationship("ENEMIES", "four", "six");
+        Integer actual = db.getNodeDegree("four");
+        Assert.assertEquals(Integer.valueOf(2), actual);
+    }
+
+    @Test
+    public void shouldGetNodeIncomingDegree() {
+        db.addNode("four");
+        db.addNode("five");
+        db.addNode("six");
+        db.addRelationship("FRIENDS", "four", "five");
+        db.addRelationship("ENEMIES", "six", "four");
+        Integer actual = db.getNodeDegree("four", "out");
+        Assert.assertEquals(Integer.valueOf(1), actual);
+    }
+
+    @Test
+    public void shouldGetNodeOutgoingDegree() {
+        db.addNode("four");
+        db.addNode("five");
+        db.addNode("six");
+        db.addRelationship("FRIENDS", "four", "five");
+        db.addRelationship("ENEMIES", "six", "four");
+        Integer actual = db.getNodeDegree("four", "out");
+        Assert.assertEquals(Integer.valueOf(1), actual);
+    }
+
+    @Test
+    public void shouldGetNodeIncomingTypedDegree() {
+        db.addNode("four");
+        db.addNode("five");
+        db.addNode("six");
+        db.addRelationship("FRIENDS", "five", "four");
+        db.addRelationship("ENEMIES", "six", "four");
+        Integer actual = db.getNodeDegree("four", "in", new ArrayList<String>(){{add("ENEMIES");}});
+        Assert.assertEquals(Integer.valueOf(1), actual);
+    }
+
+    @Test
+    public void shouldGetNodeOutgoingTypedDegree() {
+        db.addNode("four");
+        db.addNode("five");
+        db.addNode("six");
+        db.addRelationship("FRIENDS", "four", "five");
+        db.addRelationship("ENEMIES", "four", "six");
+        Integer actual = db.getNodeDegree("four", "out", new ArrayList<String>(){{add("ENEMIES");}});
+        Assert.assertEquals(Integer.valueOf(1), actual);
     }
 }
