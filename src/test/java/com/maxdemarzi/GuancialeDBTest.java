@@ -119,6 +119,13 @@ public class GuancialeDBTest {
     }
 
     @Test
+    public void shouldGetRelationshipTypes() {
+        db.addRelationship("FOLLOWS", "one", "two");
+        List<String> types = db.getRelationshipTypes();
+        Assert.assertEquals(new ArrayList(){{add("FOLLOWS");}}, types);
+    }
+
+    @Test
     public void shouldGetNodeOutgoingRelationshipNodeIds() {
         db.addNode("one");
         db.addNode("two");

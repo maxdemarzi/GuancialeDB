@@ -41,6 +41,7 @@ public class Server extends Jooby {
         get("/break", req -> { throw new IllegalStateException("Something broke!"); });
 
         use(new Node());
+        use(new NodeDegree());
         use(new Relationship());
 
         use("/db")

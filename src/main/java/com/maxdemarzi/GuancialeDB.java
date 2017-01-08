@@ -74,6 +74,9 @@ public class GuancialeDB {
         }
         return attributes;
     }
+    public List<String> getRelationshipTypes() {
+        return new ArrayList<>(related.keySet());
+    }
     public boolean addNode (String key) {
         nodes.put(key, new HashMap<>());
         return true;
@@ -208,21 +211,21 @@ public class GuancialeDB {
 
 
     public Integer getNodeDegree(String id) {
-        return getNodeDegree(id, "all", null);
+        return getNodeDegree(id, "all", new ArrayList<>());
     }
 
     public Integer getNodeDegree(String id, String direction) {
-        return getNodeDegree(id, direction, null);
+        return getNodeDegree(id, direction, new ArrayList<>());
     }
 
     public Integer getNodeDegree(String id, String direction, List<String> types) {
         if (nodes.containsKey(id)) {
             Integer count = 0;
             List<String> relTypes;
-            if (types == null) {
+            if (types.size() == 0) {
                 relTypes = new ArrayList<>(related.keySet());
             } else {
-                relTypes= types;
+                relTypes = types;
             }
 
             for (String type : relTypes) {

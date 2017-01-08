@@ -1,7 +1,6 @@
 package com.maxdemarzi.server;
 
 import com.maxdemarzi.GuancialeDB;
-import com.maxdemarzi.server.Server;
 import org.jooby.test.JoobyRule;
 import org.junit.Before;
 import org.junit.Rule;
@@ -24,6 +23,7 @@ public class NodeTest {
     @Before
     public void setup() throws IOException {
         db = GuancialeDB.getInstance();
+        db.clear();
         db.addNode("emptyNode");
         HashMap<String, Object> prop =  new HashMap<>();
         prop.put("property", "Value");

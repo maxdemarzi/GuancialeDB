@@ -1,13 +1,13 @@
 package com.maxdemarzi.server;
 
 import com.maxdemarzi.GuancialeDB;
-import com.maxdemarzi.server.Server;
 import org.jooby.test.JoobyRule;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.HashMap;
 
 import static io.restassured.RestAssured.given;
@@ -23,6 +23,7 @@ public class RelationshipTest {
     @Before
     public void setup() throws IOException {
         db = GuancialeDB.getInstance();
+        db.clear();
 
         HashMap<String, Object> properties = new HashMap<>();
         properties.put("stars", 5);
@@ -113,5 +114,16 @@ public class RelationshipTest {
         then().
                 assertThat().
                 statusCode(204);
+    }
+
+    @Test
+    public void integrationTestGetRelationshipTypes() {
+        when().
+                get("/db/relationship/types").
+                then().
+                assertThat().
+                body("$", equalTo(new ArrayList<String>(){{add("FOLLOWS");}})).
+                statusCode(200).
+                contentType("application/json;charset=UTF-8");
     }
 }

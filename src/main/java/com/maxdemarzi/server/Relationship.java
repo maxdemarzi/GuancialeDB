@@ -64,6 +64,12 @@ public class Relationship extends Jooby {
                     } else {
                         throw new Err(Status.NOT_FOUND);
                     }
-                }).produces("json");
+                })
+                /*
+                 * Get relationship Types.
+                 * @return Returns <code>200</code> with a list of Relationship types
+                 */
+                .get("/relationship/types", req -> db.getRelationshipTypes())
+                .produces("json");
     }
 }
