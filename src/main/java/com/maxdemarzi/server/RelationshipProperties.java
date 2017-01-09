@@ -1,5 +1,6 @@
 package com.maxdemarzi.server;
 
+import com.fasterxml.jackson.core.type.TypeReference;
 import io.swagger.util.Json;
 import org.jooby.Err;
 import org.jooby.Jooby;
@@ -13,6 +14,7 @@ public class RelationshipProperties extends Jooby {
     public RelationshipProperties() {
         super("relationship_properties");
     }
+    private static TypeReference<HashMap<String,Object>> typeRef = new TypeReference<HashMap<String,Object>>() {};
 
     {
         use("/db")
@@ -93,12 +95,12 @@ public class RelationshipProperties extends Jooby {
                     if (rel == null) {
                         throw new Err(Status.NOT_FOUND);
                     } else {
-                        HashMap<String, Object> value = Json.mapper().readValue(req.body().value(), HashMap.class);
+                        HashMap<String, Object> value = Json.mapper().readValue(req.body().value(), typeRef);
                         if (value == null) {
                             throw new Err(Status.NOT_MODIFIED);
                         } else {
-                            for (Map.Entry<String, Object> property : value.entrySet()) {
-                                rel.put(property.getKey(), property.getValue());
+                            for (Map.Entry property : value.entrySet()) {
+                                rel.put((String)property.getKey(), property.getValue());
                             }
                             Server.db.updateRelationship(
                                     req.param("type").value(),

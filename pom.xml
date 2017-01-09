@@ -21,6 +21,8 @@
         <jooby.version>1.0.1</jooby.version>
         <jmh.version>1.17.3</jmh.version>
         <restassured.version>3.0.1</restassured.version>
+        <maven-compiler.version>3.6.0</maven-compiler.version>
+        <coveralls.version>4.3.0</coveralls.version>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <!-- Startup class -->
         <application.class>com.maxdemarzi.server.Server</application.class>
@@ -90,13 +92,13 @@
             <groupId>org.openjdk.jmh</groupId>
             <artifactId>jmh-core</artifactId>
             <scope>test</scope>
-            <version>1.6.1</version>
+            <version>${jmh.version}</version>
         </dependency>
         <dependency>
             <groupId>org.openjdk.jmh</groupId>
             <artifactId>jmh-generator-annprocess</artifactId>
             <scope>test</scope>
-            <version>1.6.1</version>
+            <version>${jmh.version}</version>
         </dependency>
         <dependency>
             <groupId>io.rest-assured</groupId>
@@ -127,7 +129,7 @@
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-compiler-plugin</artifactId>
-                <version>3.3</version>
+                <version>${maven-compiler.version}</version>
                 <configuration>
                     <source>1.8</source>
                     <target>1.8</target>
@@ -136,7 +138,7 @@
             <plugin>
                 <groupId>org.eluder.coveralls</groupId>
                 <artifactId>coveralls-maven-plugin</artifactId>
-                <version>4.0.0</version>
+                <version>${coveralls.version}</version>
             </plugin>
             <plugin>
                 <groupId>org.codehaus.mojo</groupId>
