@@ -114,7 +114,7 @@ public class NodeTest {
                 assertThat().
                 body("$", equalTo(prop)).
                 statusCode(201).
-                contentType("application/json;charset=UTF-8");;
+                contentType("application/json;charset=UTF-8");
     }
 
     @Test
@@ -138,10 +138,56 @@ public class NodeTest {
     }
 
     @Test
+    public void integrationTestPutNodeNotThere() {
+        when().
+                put("/db/node/notThere").
+        then().
+                assertThat().
+                statusCode(304);
+    }
+
+    @Test
+    public void integrationTestUpdateSinglePropertyNode() {
+        HashMap<String, Object> prop =  new HashMap<>();
+        prop.put("property", "Value2");
+
+        given().
+                contentType("application/json").
+                body(prop).
+        when().
+                put("/db/node/singlePropertyNode").
+        then().
+                assertThat().
+                body("$", equalTo(prop)).
+                statusCode(201).
+                contentType("application/json;charset=UTF-8");
+    }
+
+    @Test
+    public void integrationTestUpdateComplexPropertyNode() {
+        HashMap<String, Object> prop =  new HashMap<>();
+        prop.put("property", "Value");
+
+        HashMap<String, Object> props =  new HashMap<>();
+        props.put("city", "Miami");
+        props.put("prop", prop);
+
+        given().
+                contentType("application/json").
+                body(props).
+                when().
+                put("/db/node/complexPropertiesNode").
+                then().
+                assertThat().
+                body("$", equalTo(props)).
+                statusCode(201);
+    }
+
+    @Test
     public void integrationTestDeleteNodeNotThere() {
         when().
                 delete("/db/node/notThere").
-                then().
+        then().
                 assertThat().
                 statusCode(404);
     }

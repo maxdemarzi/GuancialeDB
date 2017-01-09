@@ -8,8 +8,8 @@ import java.util.*;
 
 public class GuancialeDB {
 
-    private static ChronicleMap<String, Object> nodes;
-    private static ChronicleMap<String, Object> relationships;
+    private static ChronicleMap<String, HashMap> nodes;
+    private static ChronicleMap<String, HashMap> relationships;
     private static HashMap<String, ReversibleMultiMap<String, String>> related;
     private static final ObjectMapper mapper = new ObjectMapper();
 
@@ -44,7 +44,7 @@ public class GuancialeDB {
         relProperties.put("one", 10000);
 
         relationships = ChronicleMap
-                .of(String.class, Object.class)
+                .of(String.class, HashMap.class)
                 .name("relationships")
                 .entries(maxRelationships)
                 .averageValue(relProperties)
@@ -58,7 +58,7 @@ public class GuancialeDB {
         nodeProperties.put("four", 50.55D);
 
         nodes = ChronicleMap
-                .of(String.class, Object.class)
+                .of(String.class, HashMap.class)
                 .name("nodes")
                 .entries(maxNodes)
                 .averageKey("uno-dos-tres-cuatro")
@@ -74,38 +74,92 @@ public class GuancialeDB {
         }
         return attributes;
     }
+
     public List<String> getRelationshipTypes() {
         return new ArrayList<>(related.keySet());
     }
-    public boolean addNode (String key) {
-        nodes.put(key, new HashMap<>());
-        return true;
-    }
 
-    public boolean addNode (String key, String properties)  {
-        try {
-            nodes.put(key, mapper.readValue(properties, HashMap.class));
-        } catch (IOException e) {
-            HashMap<String, String> value = new HashMap<>();
-            value.put("value", properties);
-            nodes.put(key, value);
+    public boolean addNode (String key) {
+        if (nodes.containsKey(key)) {
+         return false;
+        } else {
+            nodes.put(key, new HashMap<>());
         }
         return true;
     }
 
+    public boolean addNode (String key, String properties)  {
+        if (nodes.containsKey(key)) {
+            return false;
+        } else {
+            try {
+                nodes.put(key, mapper.readValue(properties, HashMap.class));
+            } catch (IOException e) {
+                HashMap<String, String> value = new HashMap<>();
+                value.put("value", properties);
+                nodes.put(key, value);
+            }
+            return true;
+        }
+    }
+
     public boolean addNode (String key, HashMap properties)  {
-        nodes.put(key, properties);
-        return true;
+        if (nodes.containsKey(key)) {
+            return false;
+        } else {
+            nodes.put(key, properties);
+            return true;
+        }
     }
 
     public boolean addNode (String key, Object properties)  {
+        if (nodes.containsKey(key)) {
+            return false;
+        } else {
             HashMap<String, Object> value = new HashMap<>();
             value.put("value", properties);
             nodes.put(key, value);
-        return true;
+            return true;
+        }
     }
 
-    public Object getNode(String id) {
+    public boolean updateNode (String key, String properties)  {
+        if (nodes.containsKey(key)) {
+            try {
+                nodes.put(key, mapper.readValue(properties, HashMap.class));
+            } catch (IOException e) {
+                HashMap<String, String> value = new HashMap<>();
+                value.put("value", properties);
+                nodes.put(key, value);
+            }
+            return true;
+
+        } else {
+            return false;
+        }
+    }
+
+    public boolean updateNode (String key, HashMap properties)  {
+        if (nodes.containsKey(key)) {
+            nodes.put(key, properties);
+            return true;
+        } else {
+            return false;
+        }
+    }
+
+    public boolean updateNode (String key, Object properties)  {
+        if (nodes.containsKey(key)) {
+            HashMap<String, Object> value = new HashMap<>();
+            value.put("value", properties);
+            nodes.put(key, value);
+            return true;
+        } else {
+            return false;
+        }
+    }
+
+    public HashMap<String, Object> getNode(String id) {
         return nodes.get(id);
     }
 
