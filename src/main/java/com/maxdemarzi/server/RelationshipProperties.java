@@ -32,7 +32,12 @@ public class RelationshipProperties extends Jooby {
                     if (rel == null) {
                         throw new Err(Status.NOT_FOUND);
                     } else {
-                        return rel.getOrDefault(req.param("key").value(),null);
+                        if (rel.containsKey(req.param("key").value())) {
+                            return rel.getOrDefault(req.param("key").value(),null);
+                        } else {
+                            throw new Err(Status.NOT_FOUND);
+                        }
+
                     }
                 })
                 /*

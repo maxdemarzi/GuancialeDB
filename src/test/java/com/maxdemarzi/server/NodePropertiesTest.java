@@ -124,7 +124,7 @@ public class NodePropertiesTest {
     public void integrationTestDeleteNodePropertyNotThere() {
         when().
                 delete("/db/node/node0/property/not_there").
-                then().
+        then().
                 assertThat().
                 statusCode(404);
     }

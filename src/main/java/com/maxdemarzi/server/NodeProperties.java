@@ -27,7 +27,10 @@ public class NodeProperties extends Jooby {
                     if (node == null) {
                         throw new Err(Status.NOT_FOUND);
                     } else {
-                        return node.getOrDefault(req.param("key").value(),null);
+                        if (node.containsKey(req.param("key").value())) {
+                            return node.get(req.param("key").value());
+                        }
+                        throw new Err(Status.NOT_FOUND);
                     }
                 })
                 /*
