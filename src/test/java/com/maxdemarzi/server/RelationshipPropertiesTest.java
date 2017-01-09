@@ -3,7 +3,7 @@ package com.maxdemarzi.server;
 import com.maxdemarzi.GuancialeDB;
 import org.jooby.test.JoobyRule;
 import org.junit.Before;
-import org.junit.Rule;
+import org.junit.ClassRule;
 import org.junit.Test;
 
 import java.io.IOException;
@@ -17,8 +17,8 @@ public class RelationshipPropertiesTest {
 
     private GuancialeDB db;
 
-    @Rule
-    public JoobyRule app = new JoobyRule(new Server());
+    @ClassRule
+    public static JoobyRule app = new JoobyRule(new Server());
 
     @Before
     public void setup() throws IOException {
