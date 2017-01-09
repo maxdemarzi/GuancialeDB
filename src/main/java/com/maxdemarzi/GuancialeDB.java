@@ -148,17 +148,6 @@ public class GuancialeDB {
         }
     }
 
-    public boolean updateNode (String key, Object properties)  {
-        if (nodes.containsKey(key)) {
-            HashMap<String, Object> value = new HashMap<>();
-            value.put("value", properties);
-            nodes.put(key, value);
-            return true;
-        } else {
-            return false;
-        }
-    }
-
     public HashMap<String, Object> getNode(String id) {
         return nodes.get(id);
     }
@@ -195,7 +184,8 @@ public class GuancialeDB {
             value.put("value", properties);
             relationships.put(from + "-" + to + type, value);
         }
-        return true;
+        related.putIfAbsent(type, new ReversibleMultiMap<>());
+        return related.get(type).put(from, to);
     }
 
     public boolean addRelationship (String type, String from, String to, HashMap properties) {
@@ -212,8 +202,8 @@ public class GuancialeDB {
         return related.get(type).put(from, to); 
     }
 
-    public Object getRelationship(String type, String from, String to) {
-        Object rel = relationships.get(from + "-" + to + type);
+    public HashMap<String, Object> getRelationship(String type, String from, String to) {
+        HashMap<String, Object> rel = relationships.get(from + "-" + to + type);
         if (rel == null) {
             if (related.get(type).get(from).contains(to)) {
                 return new HashMap<>();
@@ -222,6 +212,46 @@ public class GuancialeDB {
             }
         }
         return rel;
+    }
+
+    public boolean updateRelationship(String type, String from, String to, String properties) {
+        HashMap<String, Object> rel = relationships.get(from + "-" + to + type);
+        if (rel == null) {
+            if (!related.get(type).get(from).contains(to)) {
+                return false;
+            }
+        }
+        try {
+            relationships.put(from + "-" + to + type, mapper.readValue(properties, HashMap.class));
+        } catch (IOException e) {
+            HashMap<String, String> value = new HashMap<>();
+            value.put("value", properties);
+            relationships.put(from + "-" + to + type, value);
+        }
+        return true;
+    }
+
+    public boolean updateRelationship(String type, String from, String to, HashMap properties) {
+        HashMap<String, Object> rel = relationships.get(from + "-" + to + type);
+        if (rel == null) {
+            if (!related.get(type).get(from).contains(to)) {
+                return false;
+            }
+        }
+        relationships.put(from + "-" + to + type, properties);
+        return true;
+    }
+
+    public boolean deleteRelationshipProperties(String type, String from, String to) {
+        HashMap<String, Object> rel = relationships.get(from + "-" + to + type);
+        if (rel == null) {
+            if (!related.get(type).get(from).contains(to)) {
+                return false;
+            }
+        } else {
+            relationships.remove(from + "-" + to + type);
+        }
+        return true;
     }
 
     public boolean removeRelationship (String type, String from, String to) {
