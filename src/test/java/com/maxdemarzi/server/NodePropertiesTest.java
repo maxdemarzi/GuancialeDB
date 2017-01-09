@@ -119,4 +119,49 @@ public class NodePropertiesTest {
                 statusCode(201).
                 contentType("application/json;charset=UTF-8");
     }
+
+    @Test
+    public void integrationTestDeleteNodePropertyNotThere() {
+        when().
+                delete("/db/node/node0/property/not_there").
+                then().
+                assertThat().
+                statusCode(404);
+    }
+
+    @Test
+    public void integrationTestDeleteNodeProperty() {
+        when().
+                delete("/db/node/node1/property/name").
+                then().
+                assertThat().
+                statusCode(204);
+    }
+
+    @Test
+    public void integrationTestDeleteNodeInvalidProperty() {
+        when().
+                delete("/db/node/node1/property/not_there").
+                then().
+                assertThat().
+                statusCode(304);
+    }
+
+    @Test
+    public void integrationTestDeleteNodePropertiesNotThere() {
+        when().
+                delete("/db/node/notThere/properties").
+        then().
+                assertThat().
+                statusCode(404);
+    }
+
+    @Test
+    public void integrationTestDeleteNodeProperties() {
+        when().
+                delete("/db/node/node1/properties").
+        then().
+                assertThat().
+                statusCode(204);
+    }
 }
