@@ -40,7 +40,7 @@ public class NodeProperties extends Jooby {
                  * @param id Node ID.
                  * @param key Property name.
                  * @param body Property Value
-                 * @return Returns <code>204</code> with a single node or <code>404</code>
+                 * @return Returns <code>201</code> with a single node or <code>404</code>
                  */
                 .put("/node/:id/property/:key", (req,rsp) -> {
                     String id = req.param("id").value();
@@ -56,10 +56,10 @@ public class NodeProperties extends Jooby {
                             Server.db.updateNode(id, node);
                         }
                     }
-
+                    node = Server.db.getNode(id);
                     // Instead of 204 and sending nothing back,
                     rsp.status(201);
-                    rsp.send(Server.db.getNode(id));
+                    rsp.send(node);
 
                 })
                 /*
@@ -84,10 +84,10 @@ public class NodeProperties extends Jooby {
                             Server.db.updateNode(id, node);
                         }
                     }
-
+                    node = Server.db.getNode(id);
                     // Instead of 204 and sending nothing back,
                     rsp.status(201);
-                    rsp.send(Server.db.getNode(id));
+                    rsp.send(node);
 
                 })
                 /*

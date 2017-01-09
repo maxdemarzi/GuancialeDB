@@ -9,7 +9,7 @@ import java.util.*;
 public class GuancialeDB {
 
     private static ChronicleMap<String, HashMap> nodes;
-    private static ChronicleMap<String, HashMap> relationships;
+    private static ChronicleMap<String, HashMap<String, Object>> relationships;
     private static HashMap<String, ReversibleMultiMap<String, String>> related;
     private static final ObjectMapper mapper = new ObjectMapper();
 
@@ -44,7 +44,7 @@ public class GuancialeDB {
         relProperties.put("one", 10000);
 
         relationships = ChronicleMap
-                .of(String.class, HashMap.class)
+                .of(String.class, (Class<HashMap<String, Object>>) (Class) HashMap.class)
                 .name("relationships")
                 .entries(maxRelationships)
                 .averageValue(relProperties)
@@ -180,7 +180,7 @@ public class GuancialeDB {
         try {
             relationships.put(from + "-" + to + type, mapper.readValue(properties, HashMap.class));
         } catch (IOException e) {
-            HashMap<String, String> value = new HashMap<>();
+            HashMap<String, Object> value = new HashMap<>();
             value.put("value", properties);
             relationships.put(from + "-" + to + type, value);
         }
@@ -224,7 +224,7 @@ public class GuancialeDB {
         try {
             relationships.put(from + "-" + to + type, mapper.readValue(properties, HashMap.class));
         } catch (IOException e) {
-            HashMap<String, String> value = new HashMap<>();
+            HashMap<String, Object> value = new HashMap<>();
             value.put("value", properties);
             relationships.put(from + "-" + to + type, value);
         }

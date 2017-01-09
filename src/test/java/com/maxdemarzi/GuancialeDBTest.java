@@ -61,6 +61,15 @@ public class GuancialeDBTest {
     }
 
     @Test
+    public void shouldNotAddNodeAlreadyThere() {
+        boolean created = db.addNode("key");
+        Assert.assertTrue(created);
+        Assert.assertEquals(new HashMap<>(), db.getNode("key"));
+        created = db.addNode("key");
+        Assert.assertFalse(created);
+    }
+
+    @Test
     public void shouldAddNodeWithProperties() {
         HashMap<String, Object> properties = new HashMap<>();
         properties.put("name", "max");
@@ -76,6 +85,13 @@ public class GuancialeDBTest {
         Assert.assertTrue(created);
         Assert.assertEquals(new HashMap<String, Object>(){{put("value", 5);}}, db.getNode("simple"));
     }
+
+    @Test
+    public void shouldNotRemoveNodeNotThere() {
+        boolean result = db.removeNode("not_there");
+        Assert.assertFalse(result);
+    }
+
 
     @Test
     public void shouldRemoveNode() {
@@ -122,7 +138,7 @@ public class GuancialeDBTest {
     public void shouldGetRelationshipTypes() {
         db.addRelationship("FOLLOWS", "one", "two");
         List<String> types = db.getRelationshipTypes();
-        Assert.assertEquals(new ArrayList(){{add("FOLLOWS");}}, types);
+        Assert.assertEquals(new ArrayList<String>(){{add("FOLLOWS");}}, types);
     }
 
     @Test
