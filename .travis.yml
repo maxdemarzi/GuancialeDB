@@ -7,5 +7,5 @@ services:
 after_success:
 - mvn clean test jacoco:report coveralls:report
 - docker -u="$DOCKER_USERNAME" -p="$DOCKER_PASSWORD"
-- docker build -t maxdemarzi/guancialedb:latest .
-- docker push maxdemarzi/guancialedb:latest
+- docker build -t docker.io/maxdemarzi/guancialedb:latest .
+- docker push docker.io/maxdemarzi/guancialedb:latest
