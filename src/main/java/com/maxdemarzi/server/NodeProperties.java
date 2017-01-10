@@ -25,12 +25,13 @@ public class NodeProperties extends Jooby {
                  * @return Returns <code>200</code> with a single value or <code>404</code>
                  */
                 .get("/node/:id/property/:key", req -> {
+                    String key = req.param("key").value();
                     HashMap<String, Object> node = Server.db.getNode(req.param("id").value());
                     if (node == null) {
                         throw new Err(Status.NOT_FOUND);
                     } else {
-                        if (node.containsKey(req.param("key").value())) {
-                            return node.get(req.param("key").value());
+                        if (node.containsKey(key)) {
+                            return node.get(key);
                         }
                         throw new Err(Status.NOT_FOUND);
                     }
