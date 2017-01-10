@@ -3,15 +3,18 @@ language: java
 jdk:
 - oraclejdk8
 services:
-  - docker
+- docker
 env:
   global:
-    - COMMIT=${TRAVIS_COMMIT::8}
+  - COMMIT=${TRAVIS_COMMIT::8}
+  - secure: "Qs22Dc+wSV+JOHQN+hJqsM6LERsp5RLoIF1/BjlXAaI2YCUks4xMCXkYR5UrmbpA24LZV2k9RCXMXfvPUwA2HItfA8DgSfONtZNIDia4gJ7x2ywOnXRZhWPKX/jdvbLrOqwCjmi3Lr4/tTm++QI8e6lTSRADcc03IFnzu7CofvfblRt5HqqpHQ9yOd9lJV/UYDh6IuWLDdJpousL0khFjbkfOOQ20tpu3nRqMqJmqXOp23Ry2Or0nXCnqjeOzhkXLMmbCMpwJO2f0+Ps6DXVaJ2769WSjTBEPW2/ZZccro/FSTNK2bqAleH/DYsawRxlLgGI5Aqy+rMYXwP+gF7c4Gs3ttCuO4fWWCXlt5GJZ5Ymb0T+o0u1pzdYGBaC/4H9Bw7S8nP6kbsGewf5RLUE42XelDWeCDmrtDil/oaKyJ4G5B24hBhzh4TQnJOa71xDlRTrTziBLIc6hVcEr8zu+klwrnn+nZj7ZVR8rLCMxW9f9yUww7CZ7CCJ/r7+HXYWM6LTBjIuSRPAB44VBWlJT0caG5fyaVN5fqjazgEBBYKyK/ZmrPUqsyRvgf0kSGoLAg8ZH4uJv8/qku/AR7wxofybqMOc+gWDrXcXytjTYKg/hfbHxDZkjCCcw6totfg7dR/3lIfhnXb+zZFijwglN90MJrrs10djMK8QBZvWCaQ=" #DOCKER_USERNAME
+  - secure: "oPW/lWUm2jVDkxPzcFEKKDrCpECZ9kSMyKqefo4XC6ji1Ylw4F6Cr0ORyPzqYmzAcyRDw5yz3x6HFwu57LSCHrfHKu8Xv1SKZhcf0xh6G1/lOOeaaoPzMJH9/AQ7Yu4Q43ZO4SJmN4f1eOnnSIfyVFQHe+c5yuq978JBqX+Lia7CA030Fq2R94I6PGEelXF6mhdKO8kOyzy6oit4ZSDnCfqA/BrVuQsTnSTfsVRmq2TuK8rUzGin/uk+vf0Gn0myN62p+14r+EJLCeZhc+qabsWCAb11XIDumKlTTtcTeLEP9vudsq/Iw2nMR3u7DsXTLZRkYZ2r5tpLDWdJ/UeRIxRU/W5XTNJW4unsxoECw8vo/jWsaXnsvlOjnNquR93gASYCzaZHd7+Ve7Tl9TEZBvlXsYCK2I3sXpRTA7H4oMqhNJCKtHc6kX29gRIxV9Peja9dWyhE94qysrygCjdD9QGi6RLOz0NB7JRd+GU8zMJN+BkRdNq4TkVsfKFA72JhwmMZS6BEH1wR/GsiGZ420T2F9LZjkSVIeVl9Hn3+8WpEHXgEe9uqGmBx0pAf/irzH7qXIBq+29sB7BWdXuAkplHoVJKpZ1h3li2xkc8TqSqIk2VvjKKo1iBCJHhvf/Y2+J5xX4KqCN3DKH9v8y8DyOQ3TV+tWpRnBS73QudeL+g=" #DOCKER_PASSWORD
 after_success:
 - mvn test jacoco:report coveralls:report
-- docker -u="$DOCKER_USERNAME" -p="$DOCKER_PASSWORD"
+- docker login -u="$DOCKER_USERNAME" -p="$DOCKER_PASSWORD"
 - export REPO=maxdemarzi/guancialedb
-- export TAG=`if [ "$TRAVIS_BRANCH" == "master" ]; then echo "latest"; else echo $TRAVIS_BRANCH ; fi`
+- export TAG=`if [ "$TRAVIS_BRANCH" == "master" ]; then echo "latest"; else echo $TRAVIS_BRANCH
+  ; fi`
 - docker build -f Dockerfile -t $REPO:$COMMIT .
 - docker tag $REPO:$COMMIT $REPO:$TAG
 - docker tag $REPO:$COMMIT $REPO:travis-$TRAVIS_BUILD_NUMBER
