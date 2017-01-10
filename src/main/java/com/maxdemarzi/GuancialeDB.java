@@ -293,7 +293,6 @@ public class GuancialeDB {
         return results;
     }
 
-
     public Integer getNodeDegree(String id) {
         return getNodeDegree(id, "all", new ArrayList<>());
     }

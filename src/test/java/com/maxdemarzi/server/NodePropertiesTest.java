@@ -45,6 +45,15 @@ public class NodePropertiesTest {
     }
 
     @Test
+    public void integrationTestGetNodePropertyNotThereInvalidProperty() {
+        when().
+                get("/db/node/node1/property/not_there").
+                then().
+                assertThat().
+                statusCode(404);
+    }
+
+    @Test
     public void integrationTestGetNodeProperty() {
         when().
                 get("/db/node/node1/property/name").
