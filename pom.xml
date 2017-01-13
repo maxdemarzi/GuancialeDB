@@ -135,7 +135,11 @@
     </dependencies>
 
     <build>
-        <sourceDirectory>cmd</sourceDirectory>
+        <resources>
+            <resource>
+                <directory>cmd</directory>
+            </resource>
+        </resources>
         <plugins>
             <!-- Build fat jar -->
             <plugin>
