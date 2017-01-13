@@ -8,7 +8,10 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.maxdemarzi.DatabaseHealthCheck;
 import com.maxdemarzi.GuancialeDB;
 import com.typesafe.config.Config;
-import org.jooby.*;
+import org.jooby.Jooby;
+import org.jooby.MediaType;
+import org.jooby.banner.Banner;
+import org.jooby.crash.Crash;
 import org.jooby.json.Jackson;
 import org.jooby.metrics.Metrics;
 import org.jooby.swagger.SwaggerUI;
@@ -21,13 +24,18 @@ public class Server extends Jooby {
         put("version","0.0.1");
     }};
 
-    protected static GuancialeDB db;
+    public static GuancialeDB db;
 
     {
         onStart(() -> {
             Config conf = require(Config.class);
             GuancialeDB.init(conf.getInt("guanciale.max_nodes"),conf.getInt("guanciale.max_rels"));
             db = GuancialeDB.getInstance();
+//            HashMap<String, Object> props = new HashMap<>();
+//            props.put("name", "Max");
+//            db.addNode("max", props);
+//            db.addNode("tom");
+//            db.addRelationship("FRIENDS", "max", "tom");
         });
 
         // JSON via Jackson
@@ -71,10 +79,20 @@ public class Server extends Jooby {
                 .metric("gc", new GarbageCollectorMetricSet())
                 .metric("fs", new FileDescriptorRatioGauge())
         );
+
+        // Banner
+        use(new Banner("Guanciale DB"));
+
+        // Shell
+        use(new Crash());
   }
 
   public static void main(final String[] args) {
     run(Server::new, args);
+  }
+
+  public static HashMap<String, String> getVersion() {
+        return VERSION;
   }
 
 }

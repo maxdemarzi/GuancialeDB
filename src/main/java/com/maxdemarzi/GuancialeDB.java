@@ -308,6 +308,7 @@ public class GuancialeDB {
             if (types.size() == 0) {
                 relTypes = new ArrayList<>(related.keySet());
             } else {
+                types.retainAll(related.keySet());
                 relTypes = types;
             }
 
