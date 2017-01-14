@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Metrics Dashboard</title>
+    <link rel="stylesheet" type="text/css" href="/assets/css/dashboard.css" media="screen" />
+</head>
+<body>
+<div id="body">
+<h1>Guanciale DB</h1>
+<h2>Metrics Dashboard</h2>
+
+<div id="metrics"></div>
+</div>
+
+<script src="/assets/js/d3.min.js"></script>
+<script src="/assets/js/cubism.v1.min.js"></script>
+<script>
+
+    var measurements = {};
+
+    function refreshData()
+    {
+        d3.json("/sys/metrics", function(data) {
+            measurements = data;
+        });
+
+        setTimeout(refreshData, 1000);
+    }
+
+
+    function metrics(type, name, normalizer, unit) {
+        var value = 0,
+            values = [],
+            i = 0,
+            last;
+
+        return context.metric(function(start, stop, step, callback) {
+            start = +start, stop = +stop;
+            if (isNaN(last)) last = start;
+            while (last < stop) {
+                last += step;
+                if (measurements.hasOwnProperty(type)) {
+                    value = measurements[type][name];
+                }
+                values.push(value / normalizer);
+            }
+            callback(null, values = values.slice((start - stop) / step));
+        }, name + " " + unit);
+
+    }
+
+    refreshData();
+
+    var context = cubism.context()
+        .serverDelay(1e3)
+        .clientDelay(1e3)
+        .step(1e3)
+        .size(960);
+
+    var jooby =[];
+    jooby.push(metrics("counters","request.actives", 1, ""));
+    jooby.push(metrics("gauges","memory.total.used", 100000000, "(100MB)"));
+    jooby.push(metrics("gauges","memory.total.committed", 100000000, "(100MB)"));
+    jooby.push(metrics("gauges","threads.blocked.count", 1, ""));
+    jooby.push(metrics("gauges","threads.count", 1, ""));
+    jooby.push(metrics("gauges","threads.deadlock.count", 1, ""));
+    jooby.push(metrics("gauges","threads.new.count", 1, ""));
+    jooby.push(metrics("gauges","threads.runnable.count", 1, ""));
+    jooby.push(metrics("gauges","threads.terminated.count", 1, ""));
+    jooby.push(metrics("gauges","threads.timed_waiting.count", 1, ""));
+    jooby.push(metrics("gauges","threads.waiting.count", 1, ""));
+
+    d3.select("#metrics").call(function(div) {
+
+        div.append("div")
+            .attr("class", "axis")
+            .call(context.axis().orient("top"));
+
+        div.selectAll(".horizon")
+            .data(jooby)
+            .enter().append("div")
+            .attr("class", "horizon")
+            .call(context.horizon().extent([-20, 20]));
+
+        div.append("div")
+            .attr("class", "rule")
+            .call(context.rule());
+
+    });
+
+    // On mousemove, reposition the chart values to match the rule.
+    context.on("focus", function(i) {
+        d3.selectAll(".value").style("right", i == null ? null : context.size() - i + "px");
+    });
+
+
+
+</script>
+</body>
+</html>

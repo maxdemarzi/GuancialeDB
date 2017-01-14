@@ -10,8 +10,10 @@ import com.maxdemarzi.GuancialeDB;
 import com.typesafe.config.Config;
 import org.jooby.Jooby;
 import org.jooby.MediaType;
+import org.jooby.Results;
 import org.jooby.banner.Banner;
 import org.jooby.crash.Crash;
+import org.jooby.ftl.Ftl;
 import org.jooby.json.Jackson;
 import org.jooby.metrics.Metrics;
 import org.jooby.swagger.SwaggerUI;
@@ -85,6 +87,14 @@ public class Server extends Jooby {
 
         // Shell
         use(new Crash());
+
+        // Template
+        use(new Ftl());
+
+        // Assets
+        assets("/assets/**");
+
+        get("/dashboard", req -> Results.html("dashboard"));
   }
 
   public static void main(final String[] args) {

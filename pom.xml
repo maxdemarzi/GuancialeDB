@@ -84,6 +84,12 @@
             <version>${jooby.version}</version>
         </dependency>
 
+        <!-- Templates -->
+        <dependency>
+            <groupId>org.jooby</groupId>
+            <artifactId>jooby-ftl</artifactId>
+            <version>${jooby.version}</version>
+        </dependency>
 
         <!-- Shell -->
         <dependency>
