@@ -33,11 +33,6 @@ public class Server extends Jooby {
             Config conf = require(Config.class);
             GuancialeDB.init(conf.getInt("guanciale.max_nodes"),conf.getInt("guanciale.max_rels"));
             db = GuancialeDB.getInstance();
-//            HashMap<String, Object> props = new HashMap<>();
-//            props.put("name", "Max");
-//            db.addNode("max", props);
-//            db.addNode("tom");
-//            db.addRelationship("FRIENDS", "max", "tom");
         });
 
         // JSON via Jackson
@@ -82,6 +77,8 @@ public class Server extends Jooby {
                 .metric("fs", new FileDescriptorRatioGauge())
         );
 
+        get("/dashboard", req -> Results.html("dashboard"));
+
         // Banner
         use(new Banner("Guanciale DB"));
 
@@ -94,7 +91,7 @@ public class Server extends Jooby {
         // Assets
         assets("/assets/**");
 
-        get("/dashboard", req -> Results.html("dashboard"));
+
   }
 
   public static void main(final String[] args) {

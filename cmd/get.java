@@ -7,6 +7,7 @@ import org.jooby.Err;
 import org.jooby.Status;
 
 import javax.management.ObjectName;
+import java.util.ArrayList;
 import java.util.List;
 
 @Usage("Get")
@@ -39,6 +40,9 @@ public class get extends BaseCommand {
         if (node == null) {
             throw new Err(Status.NOT_FOUND);
         } else {
+            if(types == null) {
+                types = new ArrayList<String>();
+            }
             if(Boolean.TRUE.equals(incoming) ) {
                 context.append(Server.db.getNodeDegree(id, "in", types ).toString());
             } else if (Boolean.TRUE.equals(outgoing)) {
