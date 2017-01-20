@@ -95,4 +95,24 @@ public class get extends BaseCommand {
             context.append(mapper.writeValueAsString(rel));
         }
     }
+
+    @Usage("relationship-property <type> <from> <to> <key>")
+    @Named("relationship-property")
+    @Command
+    public void relationshipProperty(InvocationContext<ObjectName> context,
+                             @Usage("the relationship type") @Argument final String type,
+                             @Usage("the starting node") @Argument final String from,
+                             @Usage("the ending node") @Argument final String to,
+                             @Usage("the property key") @Argument final String key) throws Exception {
+        HashMap rel = Server.db.getRelationship(type, from, to);
+        if (rel == null) {
+            throw new Err(Status.NOT_FOUND);
+        } else {
+            if (rel.containsKey(key)) {
+                context.append(mapper.writeValueAsString(rel.get(key)));
+            } else {
+                throw new Err(Status.NOT_FOUND);
+            }
+        }
+    }
 }
