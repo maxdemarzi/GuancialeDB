@@ -38,7 +38,7 @@ public class Node extends Jooby {
                 rsp.send(Server.db.getNode(id));
             })
             /*
-             * Create a node with Properties
+             * Update a node with Properties
              * @param id Node ID.
              * @param body Node Properties. Default is "{}".
              * @return Returns <code>201</code>

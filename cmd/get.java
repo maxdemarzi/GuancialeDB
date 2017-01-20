@@ -20,7 +20,7 @@ public class get extends BaseCommand {
     @Named("node")
     @Command
     public void node(InvocationContext<ObjectName> context,
-                     @Usage("the node id") @Argument final String id) throws Exception {
+                     @Usage("the node id") @Required @Argument final String id) throws Exception {
         Object node = Server.db.getNode(id);
         if (node == null) {
             throw new Err(Status.NOT_FOUND);
@@ -33,8 +33,8 @@ public class get extends BaseCommand {
     @Named("node-property")
     @Command
     public void nodeProperty(InvocationContext<ObjectName> context,
-                             @Usage("the node id") @Argument final String id,
-                             @Usage("the property key") @Argument final String key) throws Exception {
+                             @Usage("the node id") @Required @Argument final String id,
+                             @Usage("the property key") @Required @Argument final String key) throws Exception {
         HashMap<String, Object> node = Server.db.getNode(id);
         if (node == null) {
             throw new Err(Status.NOT_FOUND);
@@ -51,7 +51,7 @@ public class get extends BaseCommand {
     @Named("node-degree")
     @Command
     public void nodeDegree(InvocationContext<ObjectName> context,
-                           @Usage("the node id") @Argument final String id,
+                           @Usage("the node id") @Required @Argument final String id,
                            @Usage("only incoming relationships") @Option(names = {"in","incoming"}) final Boolean incoming,
                            @Usage("only outgoing relationships") @Option(names = {"out","outgoing"}) final Boolean outgoing,
                            @Usage("the relationship types") @Option(names="types") List<String> types) throws Exception {
@@ -85,9 +85,9 @@ public class get extends BaseCommand {
     @Named("relationship")
     @Command
     public void relationship(InvocationContext<ObjectName> context,
-                             @Usage("the relationship type") @Argument final String type,
-                             @Usage("the starting node") @Argument final String from,
-                             @Usage("the ending node") @Argument final String to) throws Exception {
+                             @Usage("the relationship type") @Required @Argument final String type,
+                             @Usage("the starting node") @Required @Argument final String from,
+                             @Usage("the ending node") @Required @Argument final String to) throws Exception {
         Object rel = Server.db.getRelationship(type, from, to);
         if (rel == null) {
             throw new Err(Status.NOT_FOUND);
@@ -100,10 +100,10 @@ public class get extends BaseCommand {
     @Named("relationship-property")
     @Command
     public void relationshipProperty(InvocationContext<ObjectName> context,
-                             @Usage("the relationship type") @Argument final String type,
-                             @Usage("the starting node") @Argument final String from,
-                             @Usage("the ending node") @Argument final String to,
-                             @Usage("the property key") @Argument final String key) throws Exception {
+                             @Usage("the relationship type") @Required @Argument final String type,
+                             @Usage("the starting node") @Required @Argument final String from,
+                             @Usage("the ending node") @Required @Argument final String to,
+                             @Usage("the property key") @Required @Argument final String key) throws Exception {
         HashMap rel = Server.db.getRelationship(type, from, to);
         if (rel == null) {
             throw new Err(Status.NOT_FOUND);
