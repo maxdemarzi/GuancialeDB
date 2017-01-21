@@ -13,7 +13,7 @@ public class GuancialeDBBenchmark {
     private GuancialeDB db;
     private Random rand = new Random();
 
-    @Param({"1000000"})
+    @Param({"10000000"})
     private int maxNodes;
 
     @Param({"10000000"})
@@ -61,6 +61,17 @@ public class GuancialeDBBenchmark {
     @Threads(4)
     @BenchmarkMode(Mode.Throughput)
     @OutputTimeUnit(TimeUnit.SECONDS)
+    public void measureCreateEmptyNode() throws IOException {
+        db.addNode("user" + rand.nextInt(userCount));
+    }
+
+    @Benchmark
+    @Warmup(iterations = 10)
+    @Measurement(iterations = 10)
+    @Fork(1)
+    @Threads(4)
+    @BenchmarkMode(Mode.Throughput)
+    @OutputTimeUnit(TimeUnit.SECONDS)
     public int measureCreateEmptyNodes() throws IOException {
         int user;
         for (user = 0; user < userCount; user++) {
@@ -80,11 +91,27 @@ public class GuancialeDBBenchmark {
         int user;
         for (user = 0; user < userCount; user++) {
             HashMap<String, Object> properties = new HashMap<>();
-            properties.put("id", user);
-            properties.put("username", "username" + user );
-            db.addNode("user" +user, properties);
+            properties.put("username", "username" + rand.nextInt() );
+            properties.put("age", + rand.nextInt(100) );
+            properties.put("weight", rand.nextInt(300) );
+            db.addNode( String.valueOf(rand.nextInt()), properties);
         }
         return user;
+    }
+
+    @Benchmark
+    @Warmup(iterations = 10)
+    @Measurement(iterations = 10)
+    @Fork(1)
+    @Threads(4)
+    @BenchmarkMode(Mode.Throughput)
+    @OutputTimeUnit(TimeUnit.SECONDS)
+    public void measureCreateNodeWithProperties() throws IOException {
+        HashMap<String, Object> properties = new HashMap<>();
+        properties.put("username", "username" + rand.nextInt() );
+        properties.put("age", + rand.nextInt(100) );
+        properties.put("weight", rand.nextInt(300) );
+        db.addNode( String.valueOf(rand.nextInt()), properties);
     }
 
     @Benchmark
