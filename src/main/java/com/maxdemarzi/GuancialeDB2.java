@@ -7,7 +7,6 @@ import com.googlecode.cqengine.IndexedCollection;
 import com.googlecode.cqengine.index.unique.UniqueIndex;
 import com.googlecode.cqengine.query.Query;
 import com.googlecode.cqengine.resultset.ResultSet;
-import net.openhft.chronicle.map.ChronicleMap;
 
 import java.io.IOException;
 import java.util.*;
@@ -18,8 +17,7 @@ import static com.googlecode.cqengine.query.QueryFactory.equal;
 public class GuancialeDB2 {
 
     private static IndexedCollection<PropertyContainer> nodes = new ConcurrentIndexedCollection<>();
-    //private static ChronicleMap<String, HashMap> nodes;
-    private static ChronicleMap<String, HashMap<String, Object>> relationships;
+    private static IndexedCollection<PropertyContainer> relationships = new ConcurrentIndexedCollection<>();
     private static HashMap<String, ReversibleMultiMap<String, String>> related;
     private static final ObjectMapper mapper = new ObjectMapper();
     private static Striped<Lock> nodeLocks;
@@ -51,19 +49,8 @@ public class GuancialeDB2 {
     }
 
     private GuancialeDB2(Integer maxNodes, Integer maxRelationships) {
-        HashMap<String, Object> relProperties = new HashMap<>();
-        relProperties.put("one", 10000);
-
-        relationships = ChronicleMap
-                .of(String.class, (Class<HashMap<String, Object>>) (Class) HashMap.class)
-                .name("relationships")
-                .entries(maxRelationships)
-                .averageValue(relProperties)
-                .averageKey("100000-100000-TYPE")
-                .create();
-
         nodes.addIndex(UniqueIndex.onAttribute(PropertyContainer.ID));
-
+        relationships.addIndex(UniqueIndex.onAttribute(PropertyContainer.ID));
         related = new HashMap<>();
     }
 
@@ -186,24 +173,28 @@ public class GuancialeDB2 {
         final Query<PropertyContainer> query = equal(PropertyContainer.ID, id);
         ResultSet<PropertyContainer> results = nodes.retrieve(query);
         if (results.isNotEmpty()) {
-            return results.iterator().next().properties;
+            return results.uniqueResult().properties;
         } else {
             return null;
         }
     }
 
     public boolean removeNode(String id) {
-        final Query<PropertyContainer> query = equal(PropertyContainer.ID, id);
+        Query<PropertyContainer> query = equal(PropertyContainer.ID, id);
         ResultSet<PropertyContainer> results = nodes.retrieve(query);
         if (results.isNotEmpty()) {
             nodes.remove(results.iterator().next());
             for (String type : related.keySet()) {
                 ReversibleMultiMap<String, String> rels = related.get(type);
                 for (String value : rels.get(id)) {
-                    relationships.remove(id + "-" + value + type);
+                    query = equal(PropertyContainer.ID, id + "-" + value + type);
+                    results = relationships.retrieve(query);
+                    relationships.remove(results.uniqueResult());
                 }
                 for (String key : rels.getKeysByValue(id)) {
-                    relationships.remove(key + "-" + id + type);
+                    query = equal(PropertyContainer.ID, key + "-" + id + type);
+                    results = relationships.retrieve(query);
+                    relationships.remove(results.uniqueResult());
                 }
                 rels.removeAll(id);
             }
@@ -220,18 +211,18 @@ public class GuancialeDB2 {
 
     public boolean addRelationship (String type, String from, String to, String properties)  {
         try {
-            relationships.put(from + "-" + to + type, mapper.readValue(properties, HashMap.class));
+            relationships.add(new PropertyContainer(from + "-" + to + type, mapper.readValue(properties, HashMap.class)));
         } catch (IOException e) {
             HashMap<String, Object> value = new HashMap<>();
             value.put("value", properties);
-            relationships.put(from + "-" + to + type, value);
+            relationships.add(new PropertyContainer(from + "-" + to + type, value));
         }
         related.putIfAbsent(type, new ReversibleMultiMap<>());
         return related.get(type).put(from, to);
     }
 
     public boolean addRelationship (String type, String from, String to, HashMap properties) {
-        relationships.put(from + "-" + to + type, properties);
+        relationships.add(new PropertyContainer(from + "-" + to + type, properties));
         related.putIfAbsent(type, new ReversibleMultiMap<>());
         return related.get(type).put(from, to);
     }
@@ -239,59 +230,63 @@ public class GuancialeDB2 {
     public boolean addRelationship (String type, String from, String to, Object properties) {
         HashMap<String, Object> value = new HashMap<>();
         value.put("value", properties);
-        relationships.put(from + "-" + to + type, value);
+        relationships.add(new PropertyContainer(from + "-" + to + type, value));
         related.putIfAbsent(type, new ReversibleMultiMap<>());
         return related.get(type).put(from, to); 
     }
 
     public HashMap<String, Object> getRelationship(String type, String from, String to) {
-        HashMap<String, Object> rel = relationships.get(from + "-" + to + type);
-        if (rel == null) {
+        final Query<PropertyContainer> query = equal(PropertyContainer.ID, from + "-" + to + type);
+        ResultSet<PropertyContainer> results = relationships.retrieve(query);
+        if (results.isEmpty()) {
             if (related.get(type).get(from).contains(to)) {
                 return new HashMap<>();
             } else {
                 return null;
             }
         }
-        return rel;
+        return results.uniqueResult().properties;
     }
 
     public boolean updateRelationship(String type, String from, String to, String properties) {
-        HashMap<String, Object> rel = relationships.get(from + "-" + to + type);
-        if (rel == null) {
+        final Query<PropertyContainer> query = equal(PropertyContainer.ID, from + "-" + to + type);
+        ResultSet<PropertyContainer> results = relationships.retrieve(query);
+        if (results.isEmpty()){
             if (!related.get(type).get(from).contains(to)) {
                 return false;
             }
         }
         try {
-            relationships.put(from + "-" + to + type, mapper.readValue(properties, HashMap.class));
+            relationships.add(new PropertyContainer(from + "-" + to + type, mapper.readValue(properties, HashMap.class)));
         } catch (IOException e) {
             HashMap<String, Object> value = new HashMap<>();
             value.put("value", properties);
-            relationships.put(from + "-" + to + type, value);
+            relationships.add(new PropertyContainer(from + "-" + to + type, value));
         }
         return true;
     }
 
     public boolean updateRelationship(String type, String from, String to, HashMap properties) {
-        HashMap<String, Object> rel = relationships.get(from + "-" + to + type);
-        if (rel == null) {
+        final Query<PropertyContainer> query = equal(PropertyContainer.ID, from + "-" + to + type);
+        ResultSet<PropertyContainer> results = relationships.retrieve(query);
+        if (results.isEmpty()){
             if (!related.get(type).get(from).contains(to)) {
                 return false;
             }
         }
-        relationships.put(from + "-" + to + type, properties);
+        relationships.add(new PropertyContainer(from + "-" + to + type, properties));
         return true;
     }
 
     public boolean deleteRelationshipProperties(String type, String from, String to) {
-        HashMap<String, Object> rel = relationships.get(from + "-" + to + type);
-        if (rel == null) {
+        final Query<PropertyContainer> query = equal(PropertyContainer.ID, from + "-" + to + type);
+        ResultSet<PropertyContainer> results = relationships.retrieve(query);
+        if (results.isEmpty()){
             if (!related.get(type).get(from).contains(to)) {
                 return false;
             }
         } else {
-            relationships.remove(from + "-" + to + type);
+            relationships.remove(results.uniqueResult());
         }
         return true;
     }
@@ -301,7 +296,11 @@ public class GuancialeDB2 {
             return false;
         }
         related.get(type).remove(from, to);
-        relationships.remove(from + "-" + to + type);
+        final Query<PropertyContainer> query = equal(PropertyContainer.ID, from + "-" + to + type);
+        ResultSet<PropertyContainer> results = relationships.retrieve(query);
+        if (results.isNotEmpty()) {
+            relationships.remove(results.uniqueResult());
+        }
         return true;
     }
 

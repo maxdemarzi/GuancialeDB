@@ -1,9 +1,5 @@
 package com.maxdemarzi;
 
-import net.openhft.chronicle.hash.serialization.MapMarshaller;
-import net.openhft.chronicle.hash.serialization.impl.*;
-import net.openhft.chronicle.map.ChronicleMap;
-import net.openhft.chronicle.map.ChronicleMapBuilder;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
@@ -90,97 +86,4 @@ public class AggregationTest {
         Long end = System.currentTimeMillis();
         System.out.println(end-start);
     }
-
-    @Test
-    public void shouldAggregate5() {
-        Integer personCount = 1632803;
-        ChronicleMap<String, Integer> properties = ChronicleMap
-                .of(String.class, Integer.class)
-                .name("nodes")
-                .entries(1632803 * 10)
-                .averageKey("uno-dos-tres-cuatro")
-                .create();
-
-
-        for (int person = 0; person < personCount; person++) {
-            properties.put(String.valueOf(person), rand.nextInt(120));
-        }
-
-        int[] ages = new int[120];
-        Long start = System.currentTimeMillis();
-        for (int person = 0; person < personCount; person++) {
-            ages[properties.get(String.valueOf(person))]++;
-        }
-        Long end = System.currentTimeMillis();
-        System.out.println(end-start);
-    }
-
-    @Test
-    public void shouldAggregate6() {
-        Integer personCount = 1632803;
-
-        HashMap<String, String> sampleProperties = new HashMap<>();
-        sampleProperties.put("id", "user1");
-        sampleProperties.put("weight", "200");
-
-
-        ChronicleMap<String, HashMap<String, String>> properties = ChronicleMap
-                .of(String.class, (Class<HashMap<String, String>>) (Class) HashMap.class)
-                .name("props")
-                .entries(1632803 * 10)
-                .averageKey("uno-dos-tres-cuatro")
-                .averageValue(sampleProperties)
-                .create();
-
-        for (int person = 0; person < personCount; person++) {
-            HashMap<String, String> nodeProperties = new HashMap<>();
-            nodeProperties.put("id" + person, "id" + person);
-            nodeProperties.put("weight", String.valueOf(rand.nextInt(120)));
-            properties.put("id" + person, nodeProperties);
-        }
-
-        int[] ages = new int[120];
-        Long start = System.currentTimeMillis();
-        for (int person = 0; person < personCount; person++) {
-            ages[Integer.valueOf(properties.get("id" + person).get("weight"))]++;
-        }
-        Long end = System.currentTimeMillis();
-        System.out.println(end-start);
-    }
-
-    @Test
-    public void shouldAggregate7() {
-        Integer personCount = 1632803;
-
-        HashMap<String, String> sampleProperties = new HashMap<>();
-        sampleProperties.put("id", "user1");
-        sampleProperties.put("weight", "200");
-
-        MapMarshaller<String, String> valueMarshaller = new MapMarshaller<>(new StringBytesReader(), CharSequenceBytesWriter.INSTANCE,
-                new StringBytesReader(), CharSequenceBytesWriter.INSTANCE);
-
-        ChronicleMap<String, Map<String, String>> properties = ChronicleMapBuilder
-                .of(String.class, (Class<Map<String, String>>) (Class) Map.class)
-                .name("props")
-                .entries(1632803 * 10)
-                .valueMarshaller(valueMarshaller)
-                .averageKey("uno-dos-tres-cuatro")
-                .averageValue(sampleProperties).create();
-
-        for (int person = 0; person < personCount; person++) {
-            HashMap<String, String> nodeProperties = new HashMap<>();
-            nodeProperties.put("id" + person, "id" + person);
-            nodeProperties.put("weight", String.valueOf(rand.nextInt(120)));
-            properties.put("id" + person, nodeProperties);
-        }
-
-        int[] ages = new int[120];
-        Long start = System.currentTimeMillis();
-        for (int person = 0; person < personCount; person++) {
-            ages[Integer.valueOf(properties.get("id" + person).get("weight"))]++;
-        }
-        Long end = System.currentTimeMillis();
-        System.out.println(end-start);
-    }
-
 }
