@@ -8,12 +8,12 @@ import java.io.IOException;
 import java.util.*;
 
 public class GuancialeDBTest {
-    private GuancialeDB db;
+    private GuancialeDB2 db;
 
     @Before
     public void setup() throws IOException {
-        GuancialeDB.init(10000, 100000);
-        db = GuancialeDB.getInstance();
+        GuancialeDB2.init(10000, 100000);
+        db = GuancialeDB2.getInstance();
         db.clear();
     }
 

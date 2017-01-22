@@ -1,31 +1,42 @@
 package com.maxdemarzi;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.google.common.util.concurrent.Striped;
+import com.googlecode.cqengine.ConcurrentIndexedCollection;
+import com.googlecode.cqengine.IndexedCollection;
+import com.googlecode.cqengine.index.unique.UniqueIndex;
+import com.googlecode.cqengine.query.Query;
+import com.googlecode.cqengine.resultset.ResultSet;
 import net.openhft.chronicle.map.ChronicleMap;
 
 import java.io.IOException;
 import java.util.*;
+import java.util.concurrent.locks.Lock;
 
-public class GuancialeDB {
+import static com.googlecode.cqengine.query.QueryFactory.equal;
 
-    private static ChronicleMap<String, HashMap> nodes;
+public class GuancialeDB2 {
+
+    private static IndexedCollection<PropertyContainer> nodes = new ConcurrentIndexedCollection<>();
+    //private static ChronicleMap<String, HashMap> nodes;
     private static ChronicleMap<String, HashMap<String, Object>> relationships;
     private static HashMap<String, ReversibleMultiMap<String, String>> related;
     private static final ObjectMapper mapper = new ObjectMapper();
-
-    private static GuancialeDB instance;
-    public static GuancialeDB init(Integer maxNodes, Integer maxRelationships) {
+    private static Striped<Lock> nodeLocks;
+    private static GuancialeDB2 instance;
+    public static GuancialeDB2 init(Integer maxNodes, Integer maxRelationships) {
         if (instance == null) {
-            synchronized (GuancialeDB.class) {
+            synchronized (GuancialeDB2.class) {
                 if (instance == null){
-                    instance = new GuancialeDB(maxNodes, maxRelationships);
+                    instance = new GuancialeDB2(maxNodes, maxRelationships);
+                    nodeLocks = Striped.lazyWeakLock(maxNodes);
                 }
             }
         }
         return instance;
     }
 
-    public static GuancialeDB getInstance() {
+    public static GuancialeDB2 getInstance() {
         return instance;
     }
 
@@ -39,7 +50,7 @@ public class GuancialeDB {
         related = new HashMap<>();
     }
 
-    private GuancialeDB(Integer maxNodes, Integer maxRelationships) {
+    private GuancialeDB2(Integer maxNodes, Integer maxRelationships) {
         HashMap<String, Object> relProperties = new HashMap<>();
         relProperties.put("one", 10000);
 
@@ -51,19 +62,8 @@ public class GuancialeDB {
                 .averageKey("100000-100000-TYPE")
                 .create();
 
-        HashMap<String, Object> nodeProperties = new HashMap<>();
-        nodeProperties.put("one", 10000);
-        nodeProperties.put("two", "username10000");
-        nodeProperties.put("three", "email@yahoo.com");
-        nodeProperties.put("four", 50.55D);
+        nodes.addIndex(UniqueIndex.onAttribute(PropertyContainer.ID));
 
-        nodes = ChronicleMap
-                .of(String.class, HashMap.class)
-                .name("nodes")
-                .entries(maxNodes)
-                .averageKey("uno-dos-tres-cuatro")
-                .averageValue(nodeProperties)
-                .create();
         related = new HashMap<>();
     }
 
@@ -79,58 +79,87 @@ public class GuancialeDB {
         return new ArrayList<>(related.keySet());
     }
 
-    public boolean addNode (String key) {
-        if (nodes.containsKey(key)) {
-         return false;
-        } else {
-            nodes.put(key, new HashMap<>());
-        }
-        return true;
-    }
-
-    public boolean addNode (String key, String properties)  {
-        if (nodes.containsKey(key)) {
-            return false;
-        } else {
-            try {
-                nodes.put(key, mapper.readValue(properties, HashMap.class));
-            } catch (IOException e) {
-                HashMap<String, String> value = new HashMap<>();
-                value.put("value", properties);
-                nodes.put(key, value);
+    public boolean addNode (String id) {
+        final Query<PropertyContainer> query = equal(PropertyContainer.ID, id);
+        Lock l = nodeLocks.get(id);
+        l.lock();
+        try {
+            if (nodes.retrieve(query).isNotEmpty()) {
+                return false;
+            } else {
+                nodes.add(new PropertyContainer(id, new HashMap<>()));
             }
             return true;
+        } finally {
+            l.unlock();
         }
     }
 
-    public boolean addNode (String key, HashMap properties)  {
-        if (nodes.containsKey(key)) {
+    public boolean addNode (String id, String properties)  {
+        final Query<PropertyContainer> query = equal(PropertyContainer.ID, id);
+        Lock l = nodeLocks.get(id);
+        l.lock();
+        try {
+             if (nodes.retrieve(query).isNotEmpty()) {
+                return false;
+            } else {
+                try {
+                    nodes.add(new PropertyContainer(id, mapper.readValue(properties, HashMap.class)));
+                } catch (IOException e) {
+                    HashMap<String, Object> value = new HashMap<>();
+                    value.put("value", properties);
+                    nodes.add(new PropertyContainer(id, value));
+                }
+                return true;
+            }
+        } finally {
+            l.unlock();
+        }
+    }
+
+    public boolean addNode (String id, HashMap properties)  {
+        final Query<PropertyContainer> query = equal(PropertyContainer.ID, id);
+        Lock l = nodeLocks.get(id);
+        l.lock();
+        try {
+            if (nodes.retrieve(query).isNotEmpty()) {
             return false;
-        } else {
-            nodes.put(key, properties);
-            return true;
+            } else {
+                 nodes.add(new PropertyContainer(id, properties));
+                return true;
+            }
+        } finally {
+            l.unlock();
         }
     }
 
-    public boolean addNode (String key, Object properties)  {
-        if (nodes.containsKey(key)) {
-            return false;
-        } else {
-            HashMap<String, Object> value = new HashMap<>();
-            value.put("value", properties);
-            nodes.put(key, value);
-            return true;
+    public boolean addNode (String id, Object value)  {
+        final Query<PropertyContainer> query = equal(PropertyContainer.ID, id);
+        Lock l = nodeLocks.get(id);
+        l.lock();
+        try {
+            if (nodes.retrieve(query).isNotEmpty()) {
+                return false;
+            } else {
+                HashMap<String, Object> properties = new HashMap<>();
+                properties.put("value", value);
+                nodes.add(new PropertyContainer(id, properties));
+                return true;
+            }
+        } finally {
+            l.unlock();
         }
     }
 
-    public boolean updateNode (String key, String properties)  {
-        if (nodes.containsKey(key)) {
+    public boolean updateNode (String id, String value)  {
+         final Query<PropertyContainer> query = equal(PropertyContainer.ID, id); 
+         if (nodes.retrieve(query).isNotEmpty()) {
             try {
-                nodes.put(key, mapper.readValue(properties, HashMap.class));
+                nodes.add(new PropertyContainer(id, mapper.readValue(value, HashMap.class)));
             } catch (IOException e) {
-                HashMap<String, String> value = new HashMap<>();
-                value.put("value", properties);
-                nodes.put(key, value);
+                HashMap<String, Object> properties = new HashMap<>();
+                properties.put("value", value);
+                nodes.add(new PropertyContainer(id, properties));
             }
             return true;
 
@@ -139,30 +168,35 @@ public class GuancialeDB {
         }
     }
 
-    public boolean updateNode (String key, HashMap properties)  {
-        if (nodes.containsKey(key)) {
-            nodes.put(key, properties);
+    public boolean updateNode (String id, HashMap<String, Object> properties)  {
+         final Query<PropertyContainer> query = equal(PropertyContainer.ID, id); 
+         if (nodes.retrieve(query).isNotEmpty()) {
+             nodes.add(new PropertyContainer(id, properties));
             return true;
         } else {
             return false;
         }
     }
 
-    public Iterator getAllNodes() {
-        return nodes.entrySet().iterator();
-    }
-
-    public ChronicleMap<String, HashMap> getNodes() {
-        return nodes;
+    public Iterator<PropertyContainer> getAllNodes(){
+        return nodes.iterator();
     }
 
     public HashMap<String, Object> getNode(String id) {
-        return nodes.get(id);
+        final Query<PropertyContainer> query = equal(PropertyContainer.ID, id);
+        ResultSet<PropertyContainer> results = nodes.retrieve(query);
+        if (results.isNotEmpty()) {
+            return results.iterator().next().properties;
+        } else {
+            return null;
+        }
     }
 
     public boolean removeNode(String id) {
-        if(nodes.containsKey(id)) {
-            nodes.remove(id);
+        final Query<PropertyContainer> query = equal(PropertyContainer.ID, id);
+        ResultSet<PropertyContainer> results = nodes.retrieve(query);
+        if (results.isNotEmpty()) {
+            nodes.remove(results.iterator().next());
             for (String type : related.keySet()) {
                 ReversibleMultiMap<String, String> rels = related.get(type);
                 for (String value : rels.get(id)) {
@@ -281,10 +315,10 @@ public class GuancialeDB {
 
     public Set<Object> getOutgoingRelationshipNodes(String type, String from) {
         Set<Object> results = new HashSet<>();
-        for (String key : related.get(type).get(from) ) {
+        for (String id : related.get(type).get(from) ) {
             HashMap<String, Object> properties = new HashMap<>();
-            properties.put("_id", key);
-            properties.put("properties", nodes.get(key));
+            properties.put("_id", id);
+            properties.put("properties", getNode(id));
             results.add(properties);
         }
         return results;
@@ -292,10 +326,10 @@ public class GuancialeDB {
 
     public Set<Object> getIncomingRelationshipNodes(String type, String from) {
         Set<Object> results = new HashSet<>();
-        for (String key : related.get(type).getKeysByValue(from) ) {
+        for (String id : related.get(type).getKeysByValue(from) ) {
             HashMap<String, Object> properties = new HashMap<>();
-            properties.put("_id", key);
-            properties.put("properties", nodes.get(key));
+            properties.put("_id", id);
+            properties.put("properties", getNode(id));
             results.add(properties);
         }
         return results;
@@ -310,7 +344,8 @@ public class GuancialeDB {
     }
 
     public Integer getNodeDegree(String id, String direction, List<String> types) {
-        if (nodes.containsKey(id)) {
+        final Query<PropertyContainer> query = equal(PropertyContainer.ID, id);
+        if (nodes.retrieve(query).isNotEmpty()) {
             Integer count = 0;
             List<String> relTypes;
             if (types.size() == 0) {

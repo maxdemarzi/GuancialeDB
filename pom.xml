@@ -25,6 +25,7 @@
         <coveralls.version>4.3.0</coveralls.version>
         <jacoco.version>0.7.8</jacoco.version>
         <crash-connectors.version>1.3.2</crash-connectors.version>
+        <cqengine.version>2.9.2</cqengine.version>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <!-- Startup class -->
         <application.class>com.maxdemarzi.server.Server</application.class>
@@ -41,6 +42,11 @@
             <groupId>com.google.guava</groupId>
             <artifactId>guava</artifactId>
             <version>${guava.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>com.googlecode.cqengine</groupId>
+            <artifactId>cqengine</artifactId>
+            <version>${cqengine.version}</version>
         </dependency>
 
         <!-- Server -->
