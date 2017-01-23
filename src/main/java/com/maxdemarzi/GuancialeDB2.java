@@ -21,6 +21,7 @@ public class GuancialeDB2 {
     private static HashMap<String, ReversibleMultiMap<String, String>> related;
     private static final ObjectMapper mapper = new ObjectMapper();
     private static Striped<Lock> nodeLocks;
+    private static Striped<Lock> relationshipLocks;
     private static GuancialeDB2 instance;
     public static GuancialeDB2 init(Integer maxNodes, Integer maxRelationships) {
         if (instance == null) {
